@@ -1,10 +1,17 @@
+import React from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import GlobalNavbar from "../UI/components/GlobalNavbar";
 
-import { Outlet } from "react-router-dom";
+const Root: React.FC = () => {
+  const location = useLocation();
 
-export default function Root() {
   return (
     <>
-      <Outlet /> {/* Renders the matched child route */}
+      {/* Show the GlobalNavbar only if the current path is not "/" */}
+      {location.pathname !== "/" && <GlobalNavbar />}
+      <Outlet />
     </>
   );
-}
+};
+
+export default Root;
