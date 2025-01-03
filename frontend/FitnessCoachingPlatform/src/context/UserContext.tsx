@@ -22,7 +22,7 @@ interface UserData {
 }
 
 // Define the context type
-interface ClientContextType {
+interface UserContextType {
   isLogin: boolean;
   setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
   userData: UserData | null;
@@ -30,7 +30,7 @@ interface ClientContextType {
 }
 
 // Initialize the context with default values
-const ClientContext = createContext<ClientContextType>({
+const UserContext = createContext<UserContextType>({
   isLogin: false,
   setIsLogin: () => {},
   userData: null,
@@ -38,12 +38,12 @@ const ClientContext = createContext<ClientContextType>({
 });
 
 // Props for the provider
-interface ClientContextProviderProps {
+interface UserContextProviderProps {
   children: ReactNode;
 }
 
 // Context provider component
-const ClientContextProvider: React.FC<ClientContextProviderProps> = ({ children }) => {
+const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) => {
   const [isLogin, setIsLogin] = useState<boolean>(() => {
     const savedUser = localStorage.getItem("clientUser");
     return !!savedUser;
@@ -63,10 +63,10 @@ const ClientContextProvider: React.FC<ClientContextProviderProps> = ({ children 
   }, [userData]);
 
   return (
-    <ClientContext.Provider value={{ isLogin, setIsLogin, userData, setUserData }}>
+    <UserContext.Provider value={{ isLogin, setIsLogin, userData, setUserData }}>
       {children}
-    </ClientContext.Provider>
+    </UserContext.Provider>
   );
 };
 
-export { ClientContext, ClientContextProvider };
+export { UserContext, UserContextProvider };

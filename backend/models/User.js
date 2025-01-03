@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   phone: { type: String, default: null },
   profile: { type: ProfileSchema, required: true },
-  roles: { type: [String], default: ['user'] },
+  roles: { type: [String], default: ['client'] },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },

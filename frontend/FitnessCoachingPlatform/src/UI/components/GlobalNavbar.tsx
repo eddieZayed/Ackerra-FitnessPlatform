@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -14,19 +14,60 @@ import MenuIcon from "@mui/icons-material/Menu";
 import FitbitIcon from "@mui/icons-material/Fitbit";
 import "@fontsource/poppins";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../context/UserContext";
 
 const GlobalNavbar: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { isLogin, userData, setIsLogin, setUserData } = useContext(UserContext);
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("clientUser");
+    setIsLogin(false);
+    setUserData(null);
+    navigate("/");
+  };
+
+  // Role-based navigation links
+  const role = userData?.roles?.[0]?.trim(); // Trim the role to remove any extra characters
+  const roleBasedLinks = () => {
+    switch (role) {
+      case "client":
+        return [
+          { label: "Home", path: "/clienthome" },
+          { label: "Profile", path: "/profile" },
+          { label: "Services", path: "/clientservices" },
+          { label: "Shop", path: "/shop" },
+          { label: "Contact Us", path: "/contact" },
+        ];
+      case "coach":
+        return [
+          { label: "Welcome Page", path: "/welcome-coach" },
+          { label: "Profile", path: "/profile" },
+          { label: "Contact Us", path: "/contact" },
+        ];
+      case "seller":
+        return [
+          { label: "Welcome Page", path: "/welcome-seller" },
+          { label: "Profile", path: "/profile" },
+          { label: "Contact Us", path: "/contact" },
+        ];
+      case "owner":
+        return [{ label: "Profile", path: "/profile" }];
+      default:
+        return [];
+    }
+  };
+
+  const links = roleBasedLinks();
 
   return (
     <>
-      {/* Navbar */}
       <AppBar
         position="fixed"
         sx={{
-          backgroundColor: "#1a1a1a", // Static dark background color
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)", // Always with shadow
+          backgroundColor: "#1a1a1a",
+          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
           padding: "8px 24px",
           zIndex: 1100,
         }}
@@ -74,7 +115,7 @@ const GlobalNavbar: React.FC = () => {
             </Box>
           </Box>
 
-          {/* Navigation Links for Large Screens */}
+          {/* Centered Links */}
           <Box
             sx={{
               display: { xs: "none", md: "flex" },
@@ -82,69 +123,101 @@ const GlobalNavbar: React.FC = () => {
               gap: "32px",
             }}
           >
-            <Button
-              color="inherit"
-              sx={{
-                textTransform: "none",
-                color: "#fff",
-                fontSize: "16px",
-                "&:hover": { color: "#FF5722", textDecoration: "underline" },
-                fontFamily: "Poppins, sans-serif",
-              }}
-              onClick={() => navigate("/")}
-            >
-              Home
-            </Button>
-            <Button
-              color="inherit"
-              sx={{
-                textTransform: "none",
-                color: "#fff",
-                fontSize: "16px",
-                "&:hover": { color: "#FF5722", textDecoration: "underline" },
-                fontFamily: "Poppins, sans-serif",
-              }}
-              onClick={() => navigate("/contact")}
-            >
-              Contact Us
-            </Button>
+            {isLogin
+              ? links.map((link) => (
+                  <Button
+                    key={link.label}
+                    color="inherit"
+                    sx={{
+                      textTransform: "none",
+                      color: "#fff",
+                      fontSize: "16px",
+                      "&:hover": { color: "#FF5722", textDecoration: "underline" },
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                    onClick={() => navigate(link.path)}
+                  >
+                    {link.label}
+                  </Button>
+                ))
+              : [
+                  { label: "Home", path: "/" },
+                  { label: "Contact Us", path: "/contact" },
+                ].map((link) => (
+                  <Button
+                    key={link.label}
+                    color="inherit"
+                    sx={{
+                      textTransform: "none",
+                      color: "#fff",
+                      fontSize: "16px",
+                      "&:hover": { color: "#FF5722", textDecoration: "underline" },
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                    onClick={() => navigate(link.path)}
+                  >
+                    {link.label}
+                  </Button>
+                ))}
           </Box>
 
-          {/* Sign In and Sign Up Buttons */}
+          {/* Right-aligned Buttons */}
           <Box sx={{ display: "flex", gap: "16px" }}>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#FF5722",
-                color: "#fff",
-                textTransform: "none",
-                borderRadius: "30px",
-                padding: "10px 30px",
-                fontSize: "16px",
-                fontFamily: "Poppins, sans-serif",
-                boxShadow: "0 4px 10px rgba(255, 87, 34, 0.3)",
-                "&:hover": { backgroundColor: "#E64A19" },
-              }}
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </Button>
-            <Button
-              variant="outlined"
-              sx={{
-                borderColor: "#FF5722",
-                color: "#FF5722",
-                textTransform: "none",
-                borderRadius: "30px",
-                padding: "10px 30px",
-                fontSize: "16px",
-                fontFamily: "Poppins, sans-serif",
-                "&:hover": { backgroundColor: "#FF5722", color: "#fff" },
-              }}
-              onClick={() => navigate("/signup")}
-            >
-              Sign Up
-            </Button>
+            {isLogin ? (
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#FF5722",
+                  color: "#fff",
+                  textTransform: "none",
+                  borderRadius: "30px",
+                  padding: "10px 30px",
+                  fontSize: "16px",
+                  fontFamily: "Poppins, sans-serif",
+                  boxShadow: "0 4px 10px rgba(255, 87, 34, 0.3)",
+                  "&:hover": { backgroundColor: "#E64A19" },
+                }}
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#FF5722",
+                    color: "#fff",
+                    textTransform: "none",
+                    borderRadius: "30px",
+                    padding: "10px 30px",
+                    fontSize: "16px",
+                    fontFamily: "Poppins, sans-serif",
+                    boxShadow: "0 4px 10px rgba(255, 87, 34, 0.3)",
+                    "&:hover": { backgroundColor: "#E64A19" },
+                  }}
+                  onClick={() => navigate("/login")}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  variant="outlined"
+                  sx={{
+                    borderColor: "#FF5722",
+                    color: "#FF5722",
+                    textTransform: "none",
+                    borderRadius: "30px",
+                    padding: "10px 30px",
+                    fontSize: "16px",
+                    fontFamily: "Poppins, sans-serif",
+                    "&:hover": { backgroundColor: "#FF5722", color: "#fff" },
+                  }}
+                  onClick={() => navigate("/signup")}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
           </Box>
 
           {/* Hamburger Menu for Small Screens */}
@@ -174,54 +247,52 @@ const GlobalNavbar: React.FC = () => {
         }}
       >
         <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate("/")}>
-              <ListItemText
-                primary="Home"
-                primaryTypographyProps={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "16px",
-                  color: "#fff",
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate("/contact")}>
-              <ListItemText
-                primary="Contact Us"
-                primaryTypographyProps={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "16px",
-                  color: "#fff",
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate("/login")}>
-              <ListItemText
-                primary="Login"
-                primaryTypographyProps={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "16px",
-                  color: "#fff",
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate("/signup")}>
-              <ListItemText
-                primary="Sign Up"
-                primaryTypographyProps={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "16px",
-                  color: "#fff",
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
+          {isLogin
+            ? links.map((link) => (
+                <ListItem disablePadding key={link.label}>
+                  <ListItemButton onClick={() => navigate(link.path)}>
+                    <ListItemText
+                      primary={link.label}
+                      primaryTypographyProps={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "16px",
+                        color: "#fff",
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))
+            : [
+                { label: "Home", path: "/" },
+                { label: "Contact Us", path: "/contact" },
+              ].map((link) => (
+                <ListItem disablePadding key={link.label}>
+                  <ListItemButton onClick={() => navigate(link.path)}>
+                    <ListItemText
+                      primary={link.label}
+                      primaryTypographyProps={{
+                        fontFamily: "Poppins, sans-serif",
+                        fontSize: "16px",
+                        color: "#fff",
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+          {isLogin && (
+            <ListItem disablePadding>
+              <ListItemButton onClick={handleLogout}>
+                <ListItemText
+                  primary="Logout"
+                  primaryTypographyProps={{
+                    fontFamily: "Poppins, sans-serif",
+                    fontSize: "16px",
+                    color: "#fff",
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
       </Drawer>
 

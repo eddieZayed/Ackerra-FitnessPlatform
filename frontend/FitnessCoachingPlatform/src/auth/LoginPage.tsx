@@ -2,20 +2,18 @@ import React, { useContext, useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import axios from "axios";
-import { ClientContext } from "../ClientUser/components/ClientContext";
+import { UserContext } from "../context/UserContext";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Box, TextField, Button, Typography, Paper } from "@mui/material";
 import FitbitIcon from "@mui/icons-material/Fitbit";
-import LoadingIndicator from "../UI/components/LoadingIndicator"; 
+import LoadingIndicator from "../UI/components/LoadingIndicator";
 
-// Validation schema for username and password
 const validationSchema = yup.object({
   username: yup.string().required("Username is required"),
   password: yup.string().required("Password is required"),
 });
 
-// Function to hash the password
 const hashPassword = async (password: string): Promise<string> => {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -25,7 +23,7 @@ const hashPassword = async (password: string): Promise<string> => {
 };
 
 const LoginPage: React.FC = () => {
-  const { setUserData, setIsLogin, isLogin, userData } = useContext(ClientContext);
+  const { setUserData, setIsLogin, isLogin, userData } = useContext(UserContext);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +36,6 @@ const LoginPage: React.FC = () => {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        // Hash the password before sending it to the backend
         const hashedPassword = await hashPassword(values.password);
 
         const payload = {
@@ -59,10 +56,7 @@ const LoginPage: React.FC = () => {
         setIsLogin(true);
         localStorage.setItem("clientUser", JSON.stringify(userData));
 
-        // Log the response and updated context values
         console.log("Login Response - userData:", userData);
-        console.log("Updated Context - isLogin:", true);
-        console.log("Updated Context - userData:", userData);
 
         toast.success(`🎉 Welcome back, ${userData.profile.firstName}!`, {
           position: "bottom-right",
@@ -74,7 +68,28 @@ const LoginPage: React.FC = () => {
           theme: "colored",
         });
 
-        navigate("/");
+        // Redirect based on user role
+        const role = userData.roles?.[0]?.trim();
+        switch (role) {
+          case "client":
+            navigate("/clienthome");
+            break;
+          case "trainer":
+            navigate("/trainerhome");
+            break;
+          case "seller":
+            navigate("/sellerhome");
+            break;
+          case "owner":
+            navigate("/ownerprofile");
+            break;
+          default:
+            toast.error("❌ Unknown role. Please contact support.", {
+              position: "bottom-right",
+              autoClose: 2000,
+              theme: "colored",
+            });
+        }
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           if (error.response.status === 401) {
@@ -99,10 +114,9 @@ const LoginPage: React.FC = () => {
     },
   });
 
-  // Use effect to log context updates
   useEffect(() => {
-    console.log("ClientContext Updated - isLogin:", isLogin);
-    console.log("ClientContext Updated - userData:", userData);
+    console.log("UserContext Updated - isLogin:", isLogin);
+    console.log("UserContext Updated - userData:", userData);
   }, [isLogin, userData]);
 
   const inputStyles = {
@@ -134,7 +148,7 @@ const LoginPage: React.FC = () => {
         padding: "20px",
       }}
     >
-      {loading && <LoadingIndicator message="Logging you in..." />} {/* Display loading indicator */}
+      {loading && <LoadingIndicator message="Logging you in..." />}
       <Paper
         sx={{
           width: "100%",
