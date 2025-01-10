@@ -35,21 +35,16 @@ const GlobalNavbar: React.FC = () => {
       case "client":
         return [
           { label: "Home", path: "/clienthome" },
-          { label: "Profile", path: "/profile" },
+          { label: "Profile", path: "/clientprofile" },
           { label: "Services", path: "/clientservices" },
           { label: "Shop", path: "/store" },
-          { label: "Contact Us", path: "/contact" },
-        ];
-      case "coach":
-        return [
-          { label: "Welcome Page", path: "/welcome-coach" },
-          { label: "Profile", path: "/profile" },
           { label: "Contact Us", path: "/contact" },
         ];
       case "seller":
         return [
           { label: "Welcome Page", path: "/welcome-seller" },
-          { label: "Profile", path: "/profile" },
+          { label: "Profile", path: "/sellerprofile" },
+          { label: "Shop", path: "/store" },
           { label: "Contact Us", path: "/contact" },
         ];
       case "owner":

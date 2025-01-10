@@ -101,7 +101,7 @@ const ProductCard: React.FC<ProductProps> = ({
           flexDirection: "column",
           borderRadius: "20px",
           boxShadow: "0px 4px 20px rgba(0,0,0,0.2)",
-          backgroundColor: "#1E1E1E",
+          backgroundImage: `linear-gradient(to bottom right, rgba(40,40,40,0.95), rgba(20,20,20,0.85))`,
           color: "#FFFFFF",
           overflow: "hidden",
           margin: "auto",

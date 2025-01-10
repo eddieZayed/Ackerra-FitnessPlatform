@@ -1,17 +1,13 @@
 const bcrypt = require("bcryptjs");
-const userService = require("../services/userDataProvider"); // Updated service name
+const userService = require("../services/userDataProvider");
 
-// Register a user
+// Register a user (EXISTING)
 exports.registerUser = async (req, res) => {
   try {
     const { username, email, password, firstName, lastName, dateOfBirth } = req.body;
-
-    // Validate required fields
     if (!username || !email || !password || !firstName || !lastName || !dateOfBirth) {
       return res.status(400).json({ message: "All required fields must be provided" });
     }
-
-    // Use the service to create the user
     await userService.createUser({
       username,
       email,
@@ -20,31 +16,21 @@ exports.registerUser = async (req, res) => {
       lastName,
       dateOfBirth,
     });
-
-    // Return success response
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error registering user", error: error.message });
   }
 };
 
-// Login a user
+// Login a user (EXISTING)
 exports.loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
-
-    // Check if both username and password are provided
     if (!username || !password) {
       return res.status(400).json({ message: "Username and password are required" });
     }
-
-    // Authenticate user via service
     const user = await userService.authenticateUser(username, password);
-
-    // Exclude the passwordHash from the response
     const { passwordHash, ...userWithoutPassword } = user.toObject();
-
-    // Return success response
     res.status(200).json({
       message: "Login successful",
       user: userWithoutPassword,
@@ -54,44 +40,36 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// Update user profile
+// Update user profile (EXISTING from your snippet but newly routed)
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { username } = req.params; // Use username for updating user
+    const { username } = req.params;
     const updates = req.body;
 
-    // Update user profile via service
     const updatedUser = await userService.updateUserProfile(username, updates);
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    // Return success response
+    // Return the updated user minus passwordHash
+    const { passwordHash, ...userWithoutPassword } = updatedUser.toObject();
     res.status(200).json({
       message: "Profile updated successfully",
-      user: {
-        username: updatedUser.username,
-        email: updatedUser.email,
-        profile: updatedUser.profile,
-        roles: updatedUser.roles,
-        isActive: updatedUser.isActive,
-        updatedAt: updatedUser.updatedAt,
-      },
+      user: userWithoutPassword,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Get user by username
+// Get user by username (EXISTING)
 exports.getUserByUsername = async (req, res) => {
   try {
-    const { username } = req.params; // Fetch the username from request params
-
-    // Fetch user via service
+    const { username } = req.params;
     const user = await userService.getUserByUsername(username.trim());
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    // Exclude sensitive data and return the user
     res.status(200).json({
       username: user.username,
       email: user.email,
@@ -101,6 +79,42 @@ exports.getUserByUsername = async (req, res) => {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// NEW: Update user profile IMAGE only
+exports.updateUserProfileImage = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { base64Image } = req.body; // base64 from front-end
+
+    const updatedUser = await userService.updateUserProfileImage(username, base64Image);
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { passwordHash, ...rest } = updatedUser.toObject();
+    res.status(200).json({
+      message: "Profile image updated successfully",
+      user: rest,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// NEW: Delete user account
+exports.deleteAccount = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const deletedUser = await userService.deleteUser(username);
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found or already deleted" });
+    }
+    res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

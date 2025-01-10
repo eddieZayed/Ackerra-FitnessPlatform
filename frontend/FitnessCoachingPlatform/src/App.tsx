@@ -24,6 +24,8 @@ import MealPlannerPage from "./Users/ClientUser/Services/MealPlannerPage";
 import { StoreProvider } from "./context/StoreContext";
 import Stores from "./Users/ClientUser/ClientStoresPage";
 import Products from "./Users/ClientUser/ClientProductsPage";
+import ClientProfilePage from "./Users/ClientUser/ClientProfilePage";
+import SellerProfilePage from "./Users/SellerUser/pages/SellerProfilePage";
 
 
 
@@ -42,6 +44,10 @@ const router = createBrowserRouter([
       { path:"/clientservices", element: <ClientServicesPage/>},
       { path:"/store", element: <Stores/>},
       { path:"/products/:storeId", element: <Products/>},
+      { path:"/clientprofile", element: <ClientProfilePage/>},
+      { path:"/sellerprofile", element: <SellerProfilePage/>},
+      
+      
       //services links
       { path:"/bmi-calculator", element: <BmiCalculatorPage/>},
       { path:"/calories-calculator", element: <CalorieCalculatorPage/>},

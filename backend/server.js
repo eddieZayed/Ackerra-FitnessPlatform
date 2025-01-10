@@ -20,10 +20,16 @@ const cartRoutes = require('./routes/cartRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
 // Middleware
 app.use(bodyParser.json());
 app.use(cors());
 app.use(express.json());
+// 1) Increase body size limits to handle large Base64 images
+app.use(express.json({ limit: "50mb" })); 
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+
 app.use(
   cors({
     origin: 'http://localhost:5173', //frontend domain
