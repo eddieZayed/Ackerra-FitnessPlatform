@@ -1,7 +1,11 @@
+/**
+ * File: controllers/userController.js
+ */
+
 const bcrypt = require("bcryptjs");
 const userService = require("../services/userDataProvider");
 
-// Register a user (EXISTING)
+// Register a user 
 exports.registerUser = async (req, res) => {
   try {
     const { username, email, password, firstName, lastName, dateOfBirth } = req.body;
@@ -15,6 +19,8 @@ exports.registerUser = async (req, res) => {
       firstName,
       lastName,
       dateOfBirth,
+      // If roles is included in the request body, pass it:
+      roles: req.body.roles, // e.g. ["owner"], ["client","seller"], etc.
     });
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -22,7 +28,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// Login a user (EXISTING)
+// Login a user 
 exports.loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -40,7 +46,7 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// Update user profile (EXISTING from your snippet but newly routed)
+// Update user profile
 exports.updateUserProfile = async (req, res) => {
   try {
     const { username } = req.params;
@@ -51,7 +57,6 @@ exports.updateUserProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Return the updated user minus passwordHash
     const { passwordHash, ...userWithoutPassword } = updatedUser.toObject();
     res.status(200).json({
       message: "Profile updated successfully",
@@ -62,7 +67,7 @@ exports.updateUserProfile = async (req, res) => {
   }
 };
 
-// Get user by username (EXISTING)
+// Get user by username 
 exports.getUserByUsername = async (req, res) => {
   try {
     const { username } = req.params;
@@ -84,7 +89,7 @@ exports.getUserByUsername = async (req, res) => {
   }
 };
 
-// NEW: Update user profile IMAGE only
+// Update user profile IMAGE only 
 exports.updateUserProfileImage = async (req, res) => {
   try {
     const { username } = req.params;
@@ -106,7 +111,7 @@ exports.updateUserProfileImage = async (req, res) => {
   }
 };
 
-// NEW: Delete user account
+// Delete user account 
 exports.deleteAccount = async (req, res) => {
   try {
     const { username } = req.params;
@@ -115,6 +120,21 @@ exports.deleteAccount = async (req, res) => {
       return res.status(404).json({ message: "User not found or already deleted" });
     }
     res.status(200).json({ message: "Account deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**getAllUsers **/
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await userService.getAllUsers();
+    // Sanitizing passwordHash if not done in service:
+    const sanitized = users.map(u => {
+      const { passwordHash, ...rest } = u.toObject();
+      return rest;
+    });
+    res.status(200).json(sanitized);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

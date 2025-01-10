@@ -74,9 +74,6 @@ const LoginPage: React.FC = () => {
           case "client":
             navigate("/clienthome");
             break;
-          case "trainer":
-            navigate("/trainerhome");
-            break;
           case "seller":
             navigate("/sellerhome");
             break;
@@ -229,18 +226,6 @@ const LoginPage: React.FC = () => {
               fontFamily: "Poppins, sans-serif",
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{ color: "#ccc", marginBottom: "10px" }}
-            >
-              Forgot your password?{" "}
-              <Link
-                to="/reset-password"
-                style={{ color: "#FF5722", textDecoration: "none" }}
-              >
-                Reset it here
-              </Link>
-            </Typography>
             <Typography variant="body2" sx={{ color: "#ccc" }}>
               Don't have an account?{" "}
               <Link

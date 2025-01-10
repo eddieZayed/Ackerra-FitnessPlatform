@@ -26,6 +26,8 @@ import Stores from "./Users/ClientUser/ClientStoresPage";
 import Products from "./Users/ClientUser/ClientProductsPage";
 import ClientProfilePage from "./Users/ClientUser/ClientProfilePage";
 import SellerProfilePage from "./Users/SellerUser/pages/SellerProfilePage";
+import OwnerProfilePage from "./Users/Owner/pages/OwnerProfilePage";
+import SellerWelcomePage from "./Users/SellerUser/pages/SellerWelcomePage";
 
 
 
@@ -46,8 +48,8 @@ const router = createBrowserRouter([
       { path:"/products/:storeId", element: <Products/>},
       { path:"/clientprofile", element: <ClientProfilePage/>},
       { path:"/sellerprofile", element: <SellerProfilePage/>},
-      
-      
+      { path:"/sellerhome", element: <SellerWelcomePage/>},
+      { path:"/ownerprofile", element: <OwnerProfilePage/>},
       //services links
       { path:"/bmi-calculator", element: <BmiCalculatorPage/>},
       { path:"/calories-calculator", element: <CalorieCalculatorPage/>},

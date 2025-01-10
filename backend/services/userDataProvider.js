@@ -1,9 +1,13 @@
+/**
+ * File: services/userDataProvider.js
+ */
+
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
-// Create a new user (EXISTING)
+// Create a new user
 exports.createUser = async (userData) => {
-  const { username, email, password, firstName, lastName, dateOfBirth } = userData;
+  const { username, email, password, firstName, lastName, dateOfBirth, roles } = userData;
 
   const existingUser = await User.findOne({ $or: [{ username }, { email }] });
   if (existingUser) {
@@ -12,10 +16,14 @@ exports.createUser = async (userData) => {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
+  // NEW: If roles array is provided, use it. Otherwise default to ["client"].
+  const userRoles = Array.isArray(roles) && roles.length > 0 ? roles : ["client"];
+
   const newUser = new User({
     username,
     email,
     passwordHash,
+    roles: userRoles, // NEW: store roles array
     profile: {
       firstName,
       lastName,
@@ -26,12 +34,12 @@ exports.createUser = async (userData) => {
   return await newUser.save();
 };
 
-// Get a user by username (EXISTING)
+// Get a user by username
 exports.getUserByUsername = async (username) => {
   return await User.findOne({ username }).select("-passwordHash");
 };
 
-// Authenticate a user (EXISTING)
+// Authenticate a user
 exports.authenticateUser = async (username, password) => {
   const user = await User.findOne({ username });
   if (!user) {
@@ -44,9 +52,9 @@ exports.authenticateUser = async (username, password) => {
   return user;
 };
 
-// NEW: Update user profile (fields like firstName, lastName, phone, location, bio, etc.)
+// Update user profile
 exports.updateUserProfile = async (username, updates) => {
-  // Example partial update. If any fields exist in updates, we override them
+  // Example partial update
   const user = await User.findOneAndUpdate(
     { username },
     {
@@ -58,6 +66,8 @@ exports.updateUserProfile = async (username, updates) => {
         "profile.bio": updates.bio,
         "profile.dateOfBirth": updates.dateOfBirth,
         "profile.location": updates.location,
+        // If you want to allow updating roles, you can do:
+        // roles: updates.roles,
       },
     },
     { new: true, runValidators: true }
@@ -65,18 +75,23 @@ exports.updateUserProfile = async (username, updates) => {
   return user;
 };
 
-// NEW: Update only the user's profile image
+// Update only the user's profile image
 exports.updateUserProfileImage = async (username, base64Image) => {
   const user = await User.findOne({ username });
   if (!user) return null;
 
-  user.profile.image = base64Image; // store the base64
+  user.profile.image = base64Image; 
   await user.save();
   return user;
 };
 
-// NEW: Delete a user by username
+// Delete a user by username
 exports.deleteUser = async (username) => {
-  // Return the deleted user doc or null
   return await User.findOneAndDelete({ username });
+};
+
+// NEW: getAllUsers
+exports.getAllUsers = async () => {
+  // Return all user docs, selecting everything except passwordHash
+  return await User.find().select("-passwordHash");
 };
