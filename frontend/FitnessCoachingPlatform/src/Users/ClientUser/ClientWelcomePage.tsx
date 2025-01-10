@@ -1,7 +1,9 @@
-import React, { useContext } from "react";
+import React, { useContext } from "react"; 
 import { UserContext } from "../../context/UserContext";
 import { Box, Typography, Button, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import StoreIcon from "@mui/icons-material/Store";
+import ExploreIcon from "@mui/icons-material/Explore";
 
 const ClientWelcomePage: React.FC = () => {
   const { userData } = useContext(UserContext);
@@ -18,8 +20,8 @@ const ClientWelcomePage: React.FC = () => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        width: "100vw", // Ensures the image covers the viewport width
-        height: "100vh", // Ensures the image covers the viewport height
+        width: "100vw",
+        height: "100vh",
         color: "#FFF",
         textAlign: "center",
         overflow: "hidden",
@@ -32,7 +34,7 @@ const ClientWelcomePage: React.FC = () => {
           backgroundColor: "rgba(0, 0, 0, 0.85)",
           boxShadow: "0 15px 40px rgba(0, 0, 0, 0.9)",
           animation: "fadeIn 1.5s ease-in-out",
-          maxWidth: "600px",
+          maxWidth: "700px",
           width: "90%",
         }}
       >
@@ -60,28 +62,59 @@ const ClientWelcomePage: React.FC = () => {
           }}
         >
           Welcome to the Ackerman Family! Your fitness journey is our priority. Together,
-           we'll push boundaries, achieve goals, and unlock your full potential. Let's make every step count!
+          we'll push boundaries, achieve goals, and unlock your full potential. Let's make every step count!
         </Typography>
-        <Button
-          variant="contained"
-          onClick={() => navigate("/clientservices")}
+        <Box
           sx={{
-            backgroundColor: "#FF7043",
-            color: "#FFF",
-            padding: "14px 36px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            borderRadius: "25px",
-            animation: "buttonPulse 2s infinite",
-            boxShadow: "0px 5px 15px rgba(255, 112, 67, 0.8)",
-            "&:hover": {
-              backgroundColor: "#FF5722",
-              boxShadow: "0px 8px 20px rgba(255, 112, 67, 1)",
-            },
+            display: "flex",
+            justifyContent: "center",
+            gap: "16px", // Space between buttons
+            marginTop: "20px",
           }}
         >
-          Explore Services
-        </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/clientservices")}
+            startIcon={<ExploreIcon />}
+            sx={{
+              backgroundColor: "#FF7043",
+              color: "#FFF",
+              padding: "14px 36px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              borderRadius: "25px",
+              animation: "buttonPulse 2s infinite",
+              boxShadow: "0px 5px 15px rgba(255, 112, 67, 0.8)",
+              "&:hover": {
+                backgroundColor: "#FF5722",
+                boxShadow: "0px 8px 20px rgba(255, 112, 67, 1)",
+              },
+            }}
+          >
+            Explore Services
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/shop")}
+            startIcon={<StoreIcon />}
+            sx={{
+              backgroundColor: "#FF7043",
+              color: "#FFF",
+              padding: "14px 36px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              borderRadius: "25px",
+              animation: "buttonPulse 2s infinite",
+              boxShadow: "0px 5px 15px rgba(255, 112, 67, 0.8)",
+              "&:hover": {
+                backgroundColor: "#FF5722",
+                boxShadow: "0px 8px 20px rgba(255, 112, 67, 1)",
+              },
+            }}
+          >
+            Shop Now
+          </Button>
+        </Box>
       </Container>
 
       {/* CSS for animations */}

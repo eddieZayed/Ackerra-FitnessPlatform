@@ -45,20 +45,20 @@ interface UserContextProviderProps {
 // Context provider component
 const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) => {
   const [isLogin, setIsLogin] = useState<boolean>(() => {
-    const savedUser = localStorage.getItem("clientUser");
+    const savedUser = localStorage.getItem("User");
     return !!savedUser;
   });
 
   const [userData, setUserData] = useState<UserData | null>(() => {
-    const savedUser = localStorage.getItem("clientUser");
+    const savedUser = localStorage.getItem("User");
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
   useEffect(() => {
     if (userData) {
-      localStorage.setItem("clientUser", JSON.stringify(userData));
+      localStorage.setItem("User", JSON.stringify(userData));
     } else {
-      localStorage.removeItem("clientUser");
+      localStorage.removeItem("User");
     }
   }, [userData]);
 

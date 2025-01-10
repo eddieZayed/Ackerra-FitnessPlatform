@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import {
   ThemeProvider,
   createTheme,
@@ -32,13 +32,13 @@ const darkTheme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#FF4500", // brand orange
+      main: "#FF4500",
     },
     secondary: {
-      main: "#FFA500", // brand secondary orange
+      main: "#FFA500",
     },
     background: {
-      default: "#121212", // dark background
+      default: "#121212",
       paper: "#1E1E1E",
     },
     text: {
@@ -61,7 +61,7 @@ const HeaderBox = styled(Box)(({ theme }) => ({
   textAlign: "center",
 }));
 
-/** A styled container for the search bar (non-functional) */
+/** Container for the search bar */
 const SearchBarContainer = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -72,7 +72,7 @@ const SearchBarContainer = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-/** A styled MUI TextField for the search input (does nothing) */
+/** Styled MUI TextField for the search input */
 const StyledTextField = styled(TextField)(({ theme }) => ({
   flex: 1,
   marginRight: theme.spacing(1),
@@ -92,8 +92,8 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-/** We'll create a styled Card that scales on hover */
-const HoverCard = styled(Card)(({ theme }) => ({
+/** Styled Card that scales on hover */
+const HoverCard = styled(Card)(() => ({
   height: "100%",
   display: "flex",
   flexDirection: "column",
@@ -107,9 +107,9 @@ const HoverCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-/** Type for exercises (based on your example) */
+/** TypeScript interface for Exercise */
 interface Exercise {
-  exerciseId: string;
+  _id: string;
   gifUrl: string;
   name: string;
   instructions: string[];
@@ -119,98 +119,98 @@ interface Exercise {
   secondaryMuscles: string[];
 }
 
-/** The main component */
 const ExercisesPage: React.FC = () => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
-  // We'll store total pages from the API
   const [totalPages, setTotalPages] = useState<number>(1);
-  // We'll store the current page
   const [currentPage, setCurrentPage] = useState<number>(1);
-
-  // For the details dialog
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-
-  // Non-functional search bar state
-  const [searchTerm, setSearchTerm] = useState<string>("");
-
-  // 20 items per page
-  const exercisesPerPage = 20;
-
-  // Placeholder image if the real GIF fails
   const placeholderImage = "https://via.placeholder.com/300x200.png?text=No+Image";
 
-  /** 1. Fetch data from exercisedb with offset, limit=20 */
+  /** Fetch exercises */
   const fetchExercises = async () => {
     setLoading(true);
     try {
-      const offset = (currentPage - 1) * exercisesPerPage;
       const response = await fetch(
-        `https://exercisedb-api.vercel.app/api/v1/exercises?offset=${offset}&limit=${exercisesPerPage}`
+        `http://localhost:5000/api/exercises?page=${currentPage}&limit=50`
       );
-      const jsonData = await response.json();
-
-      /*
-        Expected shape:
-        {
-          success: true,
-          data: {
-            nextPage: "http...",
-            totalPages: 133,
-            currentPage: 1,
-            exercises: [...],
-            ...
-          }
-        }
-      */
-
-      if (!jsonData?.data) {
-        console.error("Unexpected response:", jsonData);
-        setExercises([]);
-        setTotalPages(1);
-      } else {
-        const { exercises: exArr = [], totalPages: tPages = 1 } = jsonData.data;
-        setExercises(exArr);
-        setTotalPages(tPages);
+      if (response.status === 429) {
+        throw new Error("Too Many Requests - Please try again later.");
+      } else if (response.status === 403) {
+        throw new Error("Forbidden - Please check API access permissions.");
       }
-    } catch (error) {
+      const jsonData = await response.json();
+      if (jsonData.success) {
+        setExercises(jsonData.data);
+        setTotalPages(jsonData.pagination?.totalPages || 1);
+      } else {
+        setExercises([]);
+      }
+    } catch (error: any) {
       console.error("Error fetching exercises:", error);
+      alert(error.message);
       setExercises([]);
-      setTotalPages(1);
     } finally {
       setLoading(false);
     }
   };
 
-  /** On mount and whenever currentPage changes, re-fetch from the API */
-  useEffect(() => {
-    fetchExercises();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  /** Search exercises */
+  const searchExercises = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:5000/api/exercises/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ search: searchTerm, page: currentPage, limit: 50 }),
+      });
+      if (response.status === 429) {
+        throw new Error("Too Many Requests - Please try again later.");
+      } else if (response.status === 403) {
+        throw new Error("Forbidden - Please check API access permissions.");
+      }
+      const jsonData = await response.json();
+      if (jsonData.success) {
+        setExercises(jsonData.data);
+        setTotalPages(jsonData.pagination?.totalPages || 1);
+      } else {
+        setExercises([]);
+      }
+    } catch (error: any) {
+      console.error("Error searching exercises:", error);
+      alert(error.message);
+      setExercises([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  /** Non-functional search bar handlers (just for show) */
-  const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /** Effect to load exercises on page or search term change */
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      searchExercises();
+    } else {
+      fetchExercises();
+    }
+  }, [currentPage, searchTerm]);
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // We do nothing, it's purely decorative
-    console.log(`Search submitted: ${searchTerm} (no actual filtering)`);
-  };
-
-  /** Pagination handler */
   const handlePageChange = (_: any, page: number) => {
     setCurrentPage(page);
   };
 
-  /** Details dialog */
   const handleOpenDetails = (exercise: Exercise) => {
     setSelectedExercise(exercise);
     setDetailsOpen(true);
   };
+
   const handleCloseDetails = () => {
     setDetailsOpen(false);
     setSelectedExercise(null);
@@ -226,45 +226,32 @@ const ExercisesPage: React.FC = () => {
         }}
       >
         <Container maxWidth="lg" sx={{ pt: 4 }}>
-          {/* Header */}
           <HeaderBox>
             <Typography
               variant="h3"
-              sx={{
-                color: darkTheme.palette.primary.main,
-                fontWeight: "bold",
-                mb: 2,
-              }}
+              sx={{ color: darkTheme.palette.primary.main, fontWeight: "bold", mb: 2 }}
             >
               Exercise Library
             </Typography>
             <Typography variant="h6" sx={{ color: darkTheme.palette.text.secondary }}>
-              A huge variety of exercises. 
-              <br />
-              The search bar below is purely decorative!
+              Search and explore a wide variety of exercises.
             </Typography>
           </HeaderBox>
 
-          {/* Non-Functional Search Bar */}
-          <Box component="form" onSubmit={handleSearchSubmit} sx={{ mb: 3 }}>
+          <Box component="form" sx={{ mb: 2 }}>
             <SearchBarContainer>
               <StyledTextField
-                placeholder="(Non-functional) Search exercises..."
                 variant="outlined"
+                placeholder="Search exercises..."
                 value={searchTerm}
-                onChange={handleSearchTermChange}
+                onChange={handleSearchChange}
               />
-              <IconButton
-                color="primary"
-                type="submit"
-                sx={{ backgroundColor: "#FF4500", ml: 1 }}
-              >
+              <IconButton color="primary" sx={{ backgroundColor: "#FF4500", ml: 1 }}>
                 <SearchIcon sx={{ color: "#FFF" }} />
               </IconButton>
             </SearchBarContainer>
           </Box>
 
-          {/* Main Content */}
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
               <CircularProgress color="primary" />
@@ -276,129 +263,93 @@ const ExercisesPage: React.FC = () => {
                   variant="h6"
                   sx={{ color: "#FFF", textAlign: "center", mt: 4 }}
                 >
-                  No exercises found or offset is out of range.
+                  No exercises found.
                 </Typography>
               ) : (
-                <>
-                  <Grid container spacing={3}>
-                    {exercises.map((exercise) => {
-                      const {
-                        exerciseId,
-                        gifUrl,
-                        name,
-                        instructions,
-                        targetMuscles,
-                        bodyParts,
-                        equipments,
-                        secondaryMuscles,
-                      } = exercise;
-
-                      const muscleString = targetMuscles?.join(", ") || "N/A";
-                      const bodyPartsString = bodyParts?.join(", ") || "N/A";
-                      const equipString = equipments?.join(", ") || "N/A";
-                      const secondaryString = secondaryMuscles?.join(", ") || "N/A";
-
-                      return (
-                        <Grid item xs={12} sm={6} md={4} lg={3} key={exerciseId}>
-                          <HoverCard>
-                            <CardMedia
-                              component="img"
-                              sx={{ height: 200, objectFit: "cover" }}
-                              image={gifUrl || placeholderImage}
-                              alt={name || "Exercise"}
-                              onError={(e: any) => {
-                                e.target.onerror = null;
-                                e.target.src = placeholderImage;
-                              }}
-                            />
-                            <CardContent sx={{ flexGrow: 1 }}>
-                              <Typography
-                                variant="h6"
-                                gutterBottom
-                                sx={{ color: "#FFF" }}
-                              >
-                                {name || "Unknown Exercise"}
-                              </Typography>
-                              <Typography variant="body2" sx={{ color: "#ccc" }}>
-                                <strong>Target:</strong> {muscleString}
-                              </Typography>
-                              <Typography variant="body2" sx={{ color: "#ccc" }}>
-                                <strong>Body Parts:</strong> {bodyPartsString}
-                              </Typography>
-                              <Typography variant="body2" sx={{ color: "#ccc" }}>
-                                <strong>Equipment:</strong> {equipString}
-                              </Typography>
-                              <Typography variant="body2" sx={{ color: "#ccc" }}>
-                                <strong>Secondary:</strong> {secondaryString}
-                              </Typography>
-                            </CardContent>
-                            <CardActions sx={{ justifyContent: "center", p: 2 }}>
-                              <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={() => handleOpenDetails(exercise)}
-                                endIcon={<InfoIcon />}
-                                sx={{
-                                  backgroundColor: "#FF4500",
-                                  "&:hover": {
-                                    backgroundColor: "#FF5722",
-                                  },
-                                }}
-                              >
-                                See Details
-                              </Button>
-                            </CardActions>
-                          </HoverCard>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
-
-                  {/* Pagination */}
-                  <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-                    <Paper
-                      elevation={4}
-                      sx={{
-                        backgroundColor: "#2C2C2C",
-                        paddingX: 2,
-                        paddingY: 1,
-                        borderRadius: 2,
-                      }}
-                    >
-                      <Pagination
-                        count={totalPages}
-                        page={currentPage}
-                        onChange={(_, page) => setCurrentPage(page)}
-                        color="primary"
-                        siblingCount={1}
-                        boundaryCount={1}
-                      />
-                    </Paper>
-                  </Box>
-                </>
+                <Grid container spacing={3}>
+                  {exercises.map((exercise) => (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={exercise._id}>
+                      <HoverCard>
+                        <CardMedia
+                          component="img"
+                          sx={{ height: 200, objectFit: "cover" }}
+                          src={exercise.gifUrl || placeholderImage}
+                          alt={exercise.name || "Exercise"}
+                          onError={(e: any) => {
+                            e.target.onerror = null; // Prevent infinite loop
+                            e.target.src = placeholderImage; // Set to placeholder
+                          }}
+                        />
+                        <CardContent sx={{ flexGrow: 1 }}>
+                          <Typography variant="h6" gutterBottom sx={{ color: "#FFF" }}>
+                            {exercise.name || "Unknown Exercise"}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#ccc" }}>
+                            <strong>Target:</strong> {exercise.targetMuscles.join(", ") || "N/A"}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#ccc" }}>
+                            <strong>Body Parts:</strong> {exercise.bodyParts.join(", ") || "N/A"}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#ccc" }}>
+                            <strong>Equipment:</strong> {exercise.equipments.join(", ") || "N/A"}
+                          </Typography>
+                        </CardContent>
+                        <CardActions sx={{ justifyContent: "center", p: 2 }}>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleOpenDetails(exercise)}
+                            endIcon={<InfoIcon />}
+                            sx={{
+                              backgroundColor: "#FF4500",
+                              "&:hover": { backgroundColor: "#FF5722" },
+                            }}
+                          >
+                            See Details
+                          </Button>
+                        </CardActions>
+                      </HoverCard>
+                    </Grid>
+                  ))}
+                </Grid>
               )}
+
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                <Paper
+                  elevation={4}
+                  sx={{
+                    backgroundColor: "#2C2C2C",
+                    paddingX: 2,
+                    paddingY: 1,
+                    borderRadius: 2,
+                  }}
+                >
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                    siblingCount={1}
+                    boundaryCount={1}
+                  />
+                </Paper>
+              </Box>
             </>
           )}
         </Container>
 
-        {/* DETAILS DIALOG */}
         <Dialog
           open={detailsOpen}
-          onClose={() => setDetailsOpen(false)}
+          onClose={handleCloseDetails}
           maxWidth="md"
           fullWidth
           PaperProps={{
-            style: {
-              backgroundColor: "#1E1E1E",
-              color: "#FFF",
-            },
+            style: { backgroundColor: "#1E1E1E", color: "#FFF" },
           }}
         >
           <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
-            <Box sx={{ flex: 1 }}>
-              {selectedExercise?.name || "Exercise Details"}
-            </Box>
-            <IconButton sx={{ color: "#FFF" }} onClick={() => setDetailsOpen(false)}>
+            <Box sx={{ flex: 1 }}>{selectedExercise?.name || "Exercise Details"}</Box>
+            <IconButton sx={{ color: "#FFF" }} onClick={handleCloseDetails}>
               <CloseIcon />
             </IconButton>
           </DialogTitle>
@@ -425,45 +376,47 @@ const ExercisesPage: React.FC = () => {
                   variant="subtitle1"
                   sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
                 >
-                  <strong>Target Muscles:</strong>{" "}
-                  {selectedExercise.targetMuscles?.join(", ") || "N/A"}
+                  Name: <span style={{ color: "#FFF" }}>{selectedExercise.name || "N/A"}</span>
                 </Typography>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontSize: "1.1rem" }}>
-                  <strong>Body Parts:</strong>{" "}
-                  {selectedExercise.bodyParts?.join(", ") || "N/A"}
+                <Typography
+                  variant="subtitle1"
+                  sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
+                >
+                  Target Muscles: <span style={{ color: "#FFF" }}>{selectedExercise.targetMuscles.join(", ") || "N/A"}</span>
                 </Typography>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontSize: "1.1rem" }}>
-                  <strong>Equipment:</strong>{" "}
-                  {selectedExercise.equipments?.join(", ") || "N/A"}
+                <Typography
+                  variant="subtitle1"
+                  sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
+                >
+                  Body Parts: <span style={{ color: "#FFF" }}>{selectedExercise.bodyParts.join(", ") || "N/A"}</span>
                 </Typography>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontSize: "1.1rem" }}>
-                  <strong>Secondary Muscles:</strong>{" "}
-                  {selectedExercise.secondaryMuscles?.join(", ") || "N/A"}
+                <Typography
+                  variant="subtitle1"
+                  sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
+                >
+                  Equipment: <span style={{ color: "#FFF" }}>{selectedExercise.equipments.join(", ") || "N/A"}</span>
                 </Typography>
-
-                <Box sx={{ mt: 2 }}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
+                >
+                  Secondary Muscles: <span style={{ color: "#FFF" }}>{selectedExercise.secondaryMuscles.join(", ") || "N/A"}</span>
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
+                >
+                  Instructions:
+                </Typography>
+                {selectedExercise.instructions.map((step, idx) => (
                   <Typography
-                    variant="h6"
-                    sx={{ color: "#FF4500", mb: 1, fontSize: "1.2rem" }}
+                    variant="body2"
+                    sx={{ mb: 0.5, fontSize: "1rem", color: "#FFF" }}
+                    key={idx}
                   >
-                    Instructions:
+                    - {step}
                   </Typography>
-                  {selectedExercise.instructions && selectedExercise.instructions.length > 0 ? (
-                    selectedExercise.instructions.map((step, idx) => (
-                      <Typography
-                        variant="body2"
-                        sx={{ mb: 0.5, fontSize: "1rem" }}
-                        key={idx}
-                      >
-                        - {step}
-                      </Typography>
-                    ))
-                  ) : (
-                    <Typography variant="body2" sx={{ color: "#ccc", fontSize: "1rem" }}>
-                      No instructions available.
-                    </Typography>
-                  )}
-                </Box>
+                ))}
               </Box>
             )}
           </DialogContent>
@@ -471,7 +424,7 @@ const ExercisesPage: React.FC = () => {
             <Button
               variant="outlined"
               color="primary"
-              onClick={() => setDetailsOpen(false)}
+              onClick={handleCloseDetails}
               startIcon={<CloseIcon />}
               sx={{ borderColor: "#FF4500", color: "#FF4500" }}
             >

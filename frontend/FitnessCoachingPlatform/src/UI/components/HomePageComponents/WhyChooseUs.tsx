@@ -74,6 +74,7 @@ const WhyChooseUs: React.FC = () => {
                   sx={{
                     fontWeight: "bold",
                     fontFamily: "Poppins, sans-serif",
+                    color: "#fff", 
                   }}
                 >
                   {reason.title}

@@ -58,10 +58,32 @@ const services = [
   {
     id: 8,
     title: "Excercises Library",
-    description: "",
-    image: "/src/assets/img/chatbof", 
+    description: "Explore a vast library of exercises with detailed instructions and images to meet all your fitness needs.",
+    image: "/src/assets/img/exerciseLibrary.jpg", 
     link: "/exercises",
   },
+  {
+    id: 9,
+    title: "Personalized Training Program",
+    description: "Get a customized workout plan designed to match your goals, fitness level, and schedule.",
+    image: "/src/assets/img/personalTrainer.png", 
+    link: "/perosnal-training-program",
+  },
+  {
+    id: 10,
+    title: "NutriSearch",
+    description: "Analyze recipes and ingredients to uncover detailed nutritional insights with NutriSearch.",
+    image: "/src/assets/img/nutriSearch.jpg", 
+    link: "/nutri-search",
+  },
+  {
+    id: 11,
+    title: "Meal Planner",
+    description: "plan meals",
+    image: "/src/assets/img/", 
+    link: "/meal-planner",
+  },
+  
 ];
 
 const ClientServicesPage: React.FC = () => {

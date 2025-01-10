@@ -37,7 +37,7 @@ const GlobalNavbar: React.FC = () => {
           { label: "Home", path: "/clienthome" },
           { label: "Profile", path: "/profile" },
           { label: "Services", path: "/clientservices" },
-          { label: "Shop", path: "/shop" },
+          { label: "Shop", path: "/store" },
           { label: "Contact Us", path: "/contact" },
         ];
       case "coach":

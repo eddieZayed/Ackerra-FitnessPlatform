@@ -18,6 +18,12 @@ import CaloriesBurnedCalculator from "./Users/ClientUser/Services/CaloriesBurned
 import BehaviorChangePage from "./Users/ClientUser/Services/BehaviorChangePage";
 import ChatbotPage from "./Users/ClientUser/Services/ChatbotPage";
 import ExercisesPage from "./Users/ClientUser/Services/ExercisesPage";
+import PersonalizedTrainingProgramPage from "./Users/ClientUser/Services/PersonalizedTrainingProgramPage";
+import NutriSearchPage from "./Users/ClientUser/Services/NutriSearchPage";
+import MealPlannerPage from "./Users/ClientUser/Services/MealPlannerPage";
+import { StoreProvider } from "./context/StoreContext";
+import Stores from "./Users/ClientUser/ClientStoresPage";
+import Products from "./Users/ClientUser/ClientProductsPage";
 
 
 
@@ -34,6 +40,8 @@ const router = createBrowserRouter([
       { path:"/contact", element: <ContactUsPage/>}, //Contact us page route
       { path:"/clienthome", element: <ClientWelcomePage/>}, //clientWelcomePage
       { path:"/clientservices", element: <ClientServicesPage/>},
+      { path:"/store", element: <Stores/>},
+      { path:"/products/:storeId", element: <Products/>},
       //services links
       { path:"/bmi-calculator", element: <BmiCalculatorPage/>},
       { path:"/calories-calculator", element: <CalorieCalculatorPage/>},
@@ -43,9 +51,11 @@ const router = createBrowserRouter([
       { path:"/behavior-change-tool", element: <BehaviorChangePage/>},
       { path:"/chatbot", element: <ChatbotPage/>},
       { path:"/exercises", element: <ExercisesPage/>},
+      { path:"/perosnal-training-program", element: <PersonalizedTrainingProgramPage/>},
+      { path:"/nutri-search", element: <NutriSearchPage/>},
+      { path:"/meal-planner", element: <MealPlannerPage/>},
       
-
-      
+    
       { path: "/*", element: <NotFoundPage/> }, // Optional: Catch-all route for 404
     ],
   },
@@ -54,8 +64,10 @@ const router = createBrowserRouter([
 const App: React.FC = () => {
   return (
         <UserContextProvider>
-          <RouterProvider router={router} />
-          <ToastContainer />
+          <StoreProvider>
+            <RouterProvider router={router} />
+            <ToastContainer />
+          </StoreProvider>
         </UserContextProvider>
   );
 };

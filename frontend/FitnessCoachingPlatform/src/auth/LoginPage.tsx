@@ -54,7 +54,7 @@ const LoginPage: React.FC = () => {
         const userData = response.data.user;
         setUserData(userData);
         setIsLogin(true);
-        localStorage.setItem("clientUser", JSON.stringify(userData));
+        localStorage.setItem("User", JSON.stringify(userData));
 
         console.log("Login Response - userData:", userData);
 
