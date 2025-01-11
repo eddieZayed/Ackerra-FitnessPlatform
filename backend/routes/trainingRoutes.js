@@ -1,5 +1,4 @@
 // File: routes/trainingRoutes.js
-
 const express = require("express");
 const { generateTrainingProgram } = require("../controllers/trainingController");
 

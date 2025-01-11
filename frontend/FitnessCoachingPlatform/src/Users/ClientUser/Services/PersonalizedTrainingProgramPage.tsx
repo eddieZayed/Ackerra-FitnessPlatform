@@ -6,6 +6,7 @@ import {
   createTheme,
   Box,
   Container,
+  Paper,
   Typography,
   Stepper,
   Step,
@@ -33,28 +34,23 @@ import {
   TableCell,
   TableBody,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 
+import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
 
-
-// ---------- THEME SETUP ----------
+/** 1) THEME SETUP */
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: {
-      main: "#FF4500", // brand orange
-    },
-    secondary: {
-      main: "#FFA500", // secondary orange
-    },
+    primary: { main: "#FF4500" }, // Vibrant brand orange
+    secondary: { main: "#FFA500" },
     background: {
-      default: "#1C1C1C", // single dark background
-      paper: "#2C2C2C",
+      default: "#0E0E0E", // A deeper dark
+      paper: "#1B1B1B",
     },
     text: {
-      primary: "#FFF",
-      secondary: "#ccc",
+      primary: "#FFFFFF",
+      secondary: "#AAAAAA",
     },
   },
   typography: {
@@ -62,28 +58,45 @@ const darkTheme = createTheme({
   },
 });
 
-// Main container with a single background color
-const MainContainer = styled(Box)(({ theme }) => ({
- 
-  backgroundAttachment: "fixed", // Makes the gradient static while scrolling
+/** 2) STYLED COMPONENTS */
+
+// A background with a large image, gradient overlay, etc.
+const BackgroundWrapper = styled(Box)(() => ({
   minHeight: "100vh",
-  backgroundColor: theme.palette.background.default,
-  paddingBottom: theme.spacing(6),
+  width: "100%",
+  backgroundImage: "url('/src/assets/img/trainingProgramWallpaper2.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  padding: "40px 0",
 }));
 
-/** A styled container for the top "header" */
-const HeaderBox = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+
+const ProgramContainer = styled(Container)(() => ({
+  position: "relative",
+  zIndex: 2,
+}));
+
+// This is the main card or "paper" that holds the content, with a border and subtle shadows.
+const MainCard = styled(Paper)(({ theme }) => ({
+  backgroundColor: "#030104",
+  border: "1px solid rgba(255,69,0,0.3)",
+  borderRadius: "12px",
   padding: theme.spacing(4),
-  borderRadius: 8,
-  marginBottom: theme.spacing(4),
-  boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-  textAlign: "center",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.8)",
+  animation: "fadeInDown 0.6s both",
+  maxWidth: "800px",
+  margin: "0 auto",
 }));
 
 // Step titles
-const steps = ["User Info", "Confirm & Generate"];
+const steps = ["Your Info", "Confirm & Generate"];
 
+/** 3) REACT COMPONENT */
 interface Exercise {
   name: string;
   gifUrl: string;
@@ -113,27 +126,23 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
   const [goal, setGoal] = useState<string>("muscle gain");
   const [daysPerWeek, setDaysPerWeek] = useState<number>(3);
   const [equipment, setEquipment] = useState<string[]>(["body weight"]);
-  const [height, setHeight] = useState<number>(180);
-  const [weight, setWeight] = useState<number>(75);
+  const [height, setHeight] = useState<number>(175);
+  const [weight, setWeight] = useState<number>(70);
   const [age, setAge] = useState<number>(25);
   const [fitnessLevel, setFitnessLevel] = useState<string>("beginner");
 
-  // PROGRAM DATA
+  // PROGRAM
   const [trainingProgram, setTrainingProgram] = useState<DayProgram[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  // For "See Details" dialog
+  // EXERCISE DETAILS
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
-  // Tabs for the final program
+  // TABS
   const [tabIndex, setTabIndex] = useState<number>(0);
 
-  // Placeholder image
-  const placeholderImage = "https://via.placeholder.com/300x200.png?text=No+Image";
-
-  // We can define a list of possible equipment for multi-select
   const allEquipments = [
     "body weight",
     "dumbbell",
@@ -143,11 +152,11 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
     "machine",
   ];
 
-  // STEPPER HANDLERS
+  // ---------- Handler for Stepper
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
-  // Generate Program: POST request
+  // ---------- Generate Program
   const handleGenerateProgram = async () => {
     setLoading(true);
     setError("");
@@ -170,14 +179,15 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
         body: JSON.stringify(bodyData),
       });
       const jsonData = await response.json();
+
       if (!response.ok) {
-        throw new Error(jsonData.message || "Failed to generate program");
+        throw new Error(jsonData.message || "Failed to generate program.");
       }
       if (jsonData.success && jsonData.data) {
         setTrainingProgram(jsonData.data);
         setTabIndex(0);
       } else {
-        throw new Error("Unexpected response from server");
+        throw new Error("Unexpected server response.");
       }
     } catch (err: any) {
       setError(err.message);
@@ -186,21 +196,21 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
     }
   };
 
-  // OPEN/CLOSE DETAILS
+  // ---------- Exercise Details Dialog
   const handleOpenDetails = (exercise: Exercise) => {
     setSelectedExercise(exercise);
     setDetailsOpen(true);
   };
   const handleCloseDetails = () => {
-    setDetailsOpen(false);
     setSelectedExercise(null);
+    setDetailsOpen(false);
   };
 
-  // RENDER STEPS
+  // ---------- Step Renders
   const renderUserInfoStep = () => (
-    <Box>
-      <Typography variant="h5" sx={{ mb: 3, color: "#FF4500", fontWeight: "bold" }}>
-        Please enter your details
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="h5" sx={{ color: "#FF4500", fontWeight: "bold", mb: 3 }}>
+        Enter Your Information
       </Typography>
 
       {/* Goal */}
@@ -219,7 +229,7 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
         </Select>
       </FormControl>
 
-      {/* Days per Week */}
+      {/* Days Per Week */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel sx={{ color: "#FF4500" }}>Days per Week</InputLabel>
         <Select
@@ -228,15 +238,15 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
           onChange={(e) => setDaysPerWeek(e.target.value as number)}
           sx={{ backgroundColor: "#2C2C2C", color: "#FFF" }}
         >
-          {[1, 2, 3, 4, 5, 6, 7].map((d) => (
-            <MenuItem key={d} value={d}>
-              {d} Day{d > 1 ? "s" : ""}
+          {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+            <MenuItem key={num} value={num}>
+              {num} Day{num > 1 ? "s" : ""}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      {/* Equipment (multi-select) */}
+      {/* Equipment (Multi-select) */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel sx={{ color: "#FF4500" }}>Equipment</InputLabel>
         <Select
@@ -268,6 +278,7 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
           onChange={(e) => setHeight(parseInt(e.target.value))}
           sx={{
             backgroundColor: "#2C2C2C",
+            color: "#FFF",
             "& .MuiOutlinedInput-root": { color: "#FFF" },
           }}
         />
@@ -313,174 +324,134 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
   );
 
   const renderConfirmStep = () => (
-    <Box>
-      <Typography variant="h5" sx={{ mb: 3, color: "#FF4500", fontWeight: "bold" }}>
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="h5" sx={{ color: "#FF4500", fontWeight: "bold", mb: 3 }}>
         Confirm Your Data
       </Typography>
-      <Typography variant="body1" sx={{ mb: 1, fontSize: "18px", color: "#FFF" }}>
-        Goal: <span style={{ color: "#FF4500" }}>{goal}</span>
+      <Typography sx={{ color: "#FFF", mb: 1 }}>
+        <strong>Goal:</strong> {goal}
       </Typography>
-      <Typography variant="body1" sx={{ mb: 1, fontSize: "18px", color: "#FFF" }}>
-        Days/Week: <span style={{ color: "#FF4500" }}>{daysPerWeek}</span>
+      <Typography sx={{ color: "#FFF", mb: 1 }}>
+        <strong>Days/Week:</strong> {daysPerWeek}
       </Typography>
-      <Typography variant="body1" sx={{ mb: 1, fontSize: "18px", color: "#FFF" }}>
-        Equipment: <span style={{ color: "#FF4500" }}>{equipment.join(", ")}</span>
+      <Typography sx={{ color: "#FFF", mb: 1 }}>
+        <strong>Equipment:</strong> {equipment.join(", ")}
       </Typography>
-      <Typography variant="body1" sx={{ mb: 1, fontSize: "18px", color: "#FFF" }}>
-        Height: <span style={{ color: "#FF4500" }}>{height} cm</span>
+      <Typography sx={{ color: "#FFF", mb: 1 }}>
+        <strong>Height:</strong> {height} cm
       </Typography>
-      <Typography variant="body1" sx={{ mb: 1, fontSize: "18px", color: "#FFF" }}>
-        Weight: <span style={{ color: "#FF4500" }}>{weight} kg</span>
+      <Typography sx={{ color: "#FFF", mb: 1 }}>
+        <strong>Weight:</strong> {weight} kg
       </Typography>
-      <Typography variant="body1" sx={{ mb: 1, fontSize: "18px", color: "#FFF" }}>
-        Age: <span style={{ color: "#FF4500" }}>{age}</span>
+      <Typography sx={{ color: "#FFF", mb: 1 }}>
+        <strong>Age:</strong> {age}
       </Typography>
-      <Typography variant="body1" sx={{ mb: 1, fontSize: "18px", color: "#FFF" }}>
-        Fitness Level: <span style={{ color: "#FF4500" }}>{fitnessLevel}</span>
+      <Typography sx={{ color: "#FFF", mb: 1 }}>
+        <strong>Fitness Level:</strong> {fitnessLevel}
       </Typography>
 
-      <Typography variant="body2" sx={{ mt: 2, color: "#ccc" }}>
-        Click “Generate Program” to fetch your personalized training plan.
+      <Typography variant="body2" sx={{ mt: 2, color: "#999", fontStyle: "italic" }}>
+        Click "Generate Program" to build your personalized workout plan.
       </Typography>
     </Box>
   );
 
-  // Once the program is fetched, we display it via Tabs
+  // ---------- Render training program in Tabs
   const renderTrainingProgramTabs = () => {
     if (!trainingProgram) return null;
-  
+
     return (
-      <Box sx={{ mt: 4, padding: "16px", border: "1px solid #FF4500", borderRadius: "8px", backgroundColor: "#2C2C2C", boxShadow: "0 4px 12px rgba(0,0,0,0.5)" }}>
-        <Typography
-          variant="h4"
-          sx={{
-            mb: 3,
-            color: "#FF4500",
-            fontWeight: "bold",
-            textAlign: "center",
-            fontSize: "2rem", // Larger font size for the title
-            textShadow: "1px 1px 4px rgba(0, 0, 0, 0.7)", // Subtle shadow for title
-          }}
-        >
-          Your Training Program
-        </Typography>
-  
+      <Box sx={{ mt: 3 }}>
         <Tabs
           value={tabIndex}
-          onChange={(_, newValue) => setTabIndex(newValue)} 
+          onChange={(_, newVal) => setTabIndex(newVal)}
           variant="scrollable"
           scrollButtons="auto"
           textColor="primary"
           indicatorColor="primary"
           sx={{
-            mb: 3,
             borderBottom: "1px solid #FF4500",
             "& .MuiTab-root": {
-              fontSize: "1rem",
               textTransform: "none",
               fontWeight: "bold",
-              borderRadius: "8px",
-              margin: "0 8px",
+              color: "#FFF",
               "&.Mui-selected": {
                 color: "#FFF",
                 backgroundColor: "#FF4500",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
               },
             },
           }}
         >
           {trainingProgram.map((day) => (
-            <Tab
-              key={day.day}
-              label={`Day ${day.day}`}
-              sx={{
-                color: "#FFF",
-                "&:hover": {
-                  backgroundColor: "#FF5722",
-                  color: "#FFF",
-                },
-              }}
-            />
+            <Tab key={day.day} label={`Day ${day.day}`} />
           ))}
         </Tabs>
-  
-        {trainingProgram.map((day, index) => (
-          tabIndex === index && (
-            <Box key={day.day} sx={{ padding: "16px", borderRadius: "8px", backgroundColor: "#1C1C1C", boxShadow: "0 4px 12px rgba(0,0,0,0.3)"  }}>
-              <Typography
-                variant="h5"
-                sx={{
-                  color: "#FF4500",
-                  mb: 2,
-                  fontSize: "1.5rem", // Larger font size for the day focus
-                  fontWeight: "bold",
-                }}
-              >
+
+        {trainingProgram.map((day, idx) => (
+          tabIndex === idx && (
+            <Box
+              key={day.day}
+              sx={{
+                mt: 3,
+                p: 2,
+                backgroundColor: "#2C2C2C",
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+              }}
+            >
+              <Typography variant="h5" sx={{ color: "#FF4500", mb: 2 }}>
                 {day.focus}
               </Typography>
-  
+
               {!day.restMessage && (
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: "#FFF",
-                    mb: 2,
-                    fontSize: "1.25rem", // Larger font size for the text
-                  }}
-                >
-                  Recommended Calories:{" "}
-                  <span style={{ color: "#FF4500" }}>{day.recommendedCalories}</span>
+                <Typography variant="body1" sx={{ color: "#FFF", mb: 2 }}>
+                  <strong>Recommended Calories:</strong> {day.recommendedCalories}
                 </Typography>
               )}
-  
+
               {day.restMessage ? (
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "#ccc",
-                    fontSize: "1.25rem", // Larger font size for rest message
-                  }}
-                >
+                <Typography variant="body2" sx={{ color: "#CCC" }}>
                   {day.restMessage}
                 </Typography>
               ) : (
-                <TableContainer sx={{ border: "1px solid #FF4500", borderRadius: "8px", overflow: "hidden" }}>
+                <TableContainer sx={{ border: "1px solid #FF4500", borderRadius: "8px" }}>
                   <Table>
                     <TableHead sx={{ backgroundColor: "#FF4500" }}>
                       <TableRow>
-                        <TableCell sx={{ color: "#FFF", fontSize: "1rem", fontWeight: "bold" }}>Exercise</TableCell>
-                        <TableCell sx={{ color: "#FFF", fontSize: "1rem", fontWeight: "bold" }} align="center">
+                        <TableCell sx={{ color: "#FFF", fontWeight: "bold" }}>
+                          Exercise
+                        </TableCell>
+                        <TableCell sx={{ color: "#FFF", fontWeight: "bold" }} align="center">
                           Sets
                         </TableCell>
-                        <TableCell sx={{ color: "#FFF", fontSize: "1rem", fontWeight: "bold" }} align="center">
+                        <TableCell sx={{ color: "#FFF", fontWeight: "bold" }} align="center">
                           Reps
                         </TableCell>
-                        <TableCell sx={{ color: "#FFF", fontSize: "1rem", fontWeight: "bold" }} align="center">
+                        <TableCell sx={{ color: "#FFF", fontWeight: "bold" }} align="center">
                           Rest
                         </TableCell>
-                        <TableCell sx={{ color: "#FFF", fontSize: "1rem", fontWeight: "bold" }} align="center">
+                        <TableCell sx={{ color: "#FFF", fontWeight: "bold" }} align="center">
                           Details
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {day.exercises.map((exercise, idx) => (
+                      {day.exercises.map((exercise, exIndex) => (
                         <TableRow
-                          key={idx}
+                          key={exIndex}
                           sx={{
-                            "&:nth-of-type(odd)": { backgroundColor: "#2C2C2C" },
-                            "&:nth-of-type(even)": { backgroundColor: "#1C1C1C" },
-                            "&:hover": { backgroundColor: "#333333" },
+                            "&:nth-of-type(odd)": { backgroundColor: "#1C1C1C" },
+                            "&:nth-of-type(even)": { backgroundColor: "#222" },
                           }}
                         >
-                          <TableCell sx={{ color: "#FFF", fontSize: "1rem" }}>{exercise.name}</TableCell>
-                          <TableCell sx={{ color: "#FFF", fontSize: "1rem" }} align="center">
+                          <TableCell sx={{ color: "#FFF" }}>{exercise.name}</TableCell>
+                          <TableCell sx={{ color: "#FFF" }} align="center">
                             {exercise.sets}
                           </TableCell>
-                          <TableCell sx={{ color: "#FFF", fontSize: "1rem" }} align="center">
+                          <TableCell sx={{ color: "#FFF" }} align="center">
                             {exercise.reps}
                           </TableCell>
-                          <TableCell sx={{ color: "#FFF", fontSize: "1rem" }} align="center">
+                          <TableCell sx={{ color: "#FFF" }} align="center">
                             {exercise.rest}
                           </TableCell>
                           <TableCell align="center">
@@ -490,7 +461,6 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
                               sx={{
                                 backgroundColor: "#FF4500",
                                 "&:hover": { backgroundColor: "#FF5722" },
-                                fontSize: "0.9rem",
                               }}
                             >
                               View
@@ -508,101 +478,76 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
       </Box>
     );
   };
-  
-  
 
+  // ---------- MAIN RENDER
   return (
     <ThemeProvider theme={darkTheme}>
-      <MainContainer>
-        <Container maxWidth="md" sx={{ pt: 4 }}>
-          {/* Header */}
-          <HeaderBox>
-            <Typography
-              variant="h3"
-              sx={{
-                color: darkTheme.palette.primary.main,
-                fontWeight: "bold",
-                mb: 2,
-              }}
-            >
-              Personalized Training Program
-            </Typography>
-            <Typography variant="h6" sx={{ color: darkTheme.palette.text.secondary }}>
-              Provide your information to generate a custom workout plan
-            </Typography>
-          </HeaderBox>
+      <BackgroundWrapper>
+        <ProgramContainer maxWidth="lg">
+          <MainCard>
+            {/* Stepper or Program Display */}
+            {!trainingProgram ? (
+              <>
+                <Stepper activeStep={activeStep} alternativeLabel>
+                  {steps.map((label) => (
+                    <Step key={label}>
+                      <StepLabel sx={{ color: "#FFF" }}>{label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
 
-          {!trainingProgram ? (
-            <>
-              {/* Stepper */}
-              <Stepper activeStep={activeStep} alternativeLabel>
-                {steps.map((label) => (
-                  <Step key={label}>
-                    <StepLabel>
-                      <span style={{ color: "#FFF" }}>{label}</span>
-                    </StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
-
-              <Box sx={{ mt: 4 }}>
-                {activeStep === 0 && renderUserInfoStep()}
-                {activeStep === 1 && renderConfirmStep()}
-              </Box>
-
-              {/* Step nav buttons */}
-              <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
-                <Button
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  variant="outlined"
-                  sx={{ color: "#FF4500", borderColor: "#FF4500" }}
-                >
-                  Back
-                </Button>
-
-                {activeStep < steps.length - 1 ? (
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#FF4500",
-                      "&:hover": { backgroundColor: "#FF5722" },
-                    }}
-                    onClick={handleNext}
-                  >
-                    Next
-                  </Button>
-                ) : (
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#FF4500",
-                      "&:hover": { backgroundColor: "#FF5722" },
-                    }}
-                    onClick={handleGenerateProgram}
-                  >
-                    Generate Program
-                  </Button>
-                )}
-              </Box>
-
-              {loading && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-                  <CircularProgress color="primary" />
+                <Box sx={{ mt: 4 }}>
+                  {activeStep === 0 && renderUserInfoStep()}
+                  {activeStep === 1 && renderConfirmStep()}
                 </Box>
-              )}
-              {error && (
-                <Typography variant="body1" sx={{ mt: 2, color: "red" }}>
-                  {error}
-                </Typography>
-              )}
-            </>
-          ) : (
-            <>
-              {renderTrainingProgramTabs()}
-            </>
-          )}
-        </Container>
+
+                {/* Navigation Buttons */}
+                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 4 }}>
+                  <Button
+                    disabled={activeStep === 0}
+                    onClick={handleBack}
+                    variant="outlined"
+                    sx={{ borderColor: "#FF4500", color: "#FF4500" }}
+                  >
+                    Back
+                  </Button>
+
+                  {activeStep < steps.length - 1 ? (
+                    <Button
+                      variant="contained"
+                      sx={{ backgroundColor: "#FF4500", "&:hover": { backgroundColor: "#FF5722" } }}
+                      onClick={handleNext}
+                    >
+                      Next
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      sx={{ backgroundColor: "#FF4500", "&:hover": { backgroundColor: "#FF5722" } }}
+                      onClick={handleGenerateProgram}
+                    >
+                      Generate Program
+                    </Button>
+                  )}
+                </Box>
+
+                {loading && (
+                  <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                    <CircularProgress color="primary" />
+                  </Box>
+                )}
+                {error && (
+                  <Typography variant="body1" sx={{ mt: 2, color: "red" }}>
+                    {error}
+                  </Typography>
+                )}
+              </>
+            ) : (
+              // If we have the training program, show it
+              <>{renderTrainingProgramTabs()}</>
+            )}
+          </MainCard>
+        </ProgramContainer>
 
         {/* Exercise Details Dialog */}
         <Dialog
@@ -612,13 +557,15 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
           fullWidth
           PaperProps={{
             style: {
-              backgroundColor: "#2C2C2C",
+              backgroundColor: "#030104",
               color: "#FFF",
             },
           }}
         >
           <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
-            <Box sx={{ flex: 1 }}>{selectedExercise?.name || "Exercise Details"}</Box>
+            <Box sx={{ flex: 1 }}>
+              {selectedExercise ? selectedExercise.name : "Exercise Details"}
+            </Box>
             <IconButton sx={{ color: "#FFF" }} onClick={handleCloseDetails}>
               <CloseIcon />
             </IconButton>
@@ -628,7 +575,7 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
               <Box>
                 <Box sx={{ textAlign: "center", mb: 2 }}>
                   <img
-                    src={selectedExercise.gifUrl || placeholderImage}
+                    src={selectedExercise.gifUrl || "https://via.placeholder.com/300x200?text=No+Image"}
                     alt={selectedExercise.name}
                     style={{
                       maxWidth: "100%",
@@ -636,67 +583,44 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
                       borderRadius: 8,
                       objectFit: "cover",
                     }}
-                    onError={(e: any) => {
-                      e.target.onerror = null;
-                      e.target.src = placeholderImage;
-                    }}
                   />
                 </Box>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ color: "#FF4500", mb: 1, fontSize: "1.1rem" }}
-                >
+                <Typography variant="subtitle1" sx={{ color: "#FF4500", mb: 1 }}>
                   Target Muscles:{" "}
                   <span style={{ color: "#FFF" }}>
-                    {selectedExercise.targetMuscles.join(", ") || "N/A"}
+                    {selectedExercise.targetMuscles.join(", ")}
                   </span>
                 </Typography>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ color: "#FF4500", mb: 1, fontSize: "1.1rem" }}
-                >
+                <Typography variant="subtitle1" sx={{ color: "#FF4500", mb: 1 }}>
                   Body Parts:{" "}
                   <span style={{ color: "#FFF" }}>
-                    {selectedExercise.bodyParts.join(", ") || "N/A"}
+                    {selectedExercise.bodyParts.join(", ")}
                   </span>
                 </Typography>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ color: "#FF4500", mb: 1, fontSize: "1.1rem" }}
-                >
+                <Typography variant="subtitle1" sx={{ color: "#FF4500", mb: 1 }}>
                   Equipment:{" "}
                   <span style={{ color: "#FFF" }}>
-                    {selectedExercise.equipments.join(", ") || "N/A"}
+                    {selectedExercise.equipments.join(", ")}
                   </span>
                 </Typography>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ color: "#FF4500", mb: 1, fontSize: "1.1rem" }}
-                >
+                <Typography variant="subtitle1" sx={{ color: "#FF4500", mb: 1 }}>
                   Secondary Muscles:{" "}
                   <span style={{ color: "#FFF" }}>
-                    {selectedExercise.secondaryMuscles.join(", ") || "N/A"}
+                    {selectedExercise.secondaryMuscles.join(", ")}
                   </span>
                 </Typography>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ color: "#FF4500", mb: 1, fontSize: "1.1rem" }}
-                >
+                <Typography variant="subtitle1" sx={{ color: "#FF4500", mb: 1 }}>
                   Sets/Reps/Rest:{" "}
                   <span style={{ color: "#FFF" }}>
                     {selectedExercise.sets} sets x {selectedExercise.reps} reps, rest {selectedExercise.rest}
                   </span>
                 </Typography>
-                <Typography variant="h6" sx={{ color: "#FF4500", mb: 1, fontSize: "1.2rem" }}>
+                <Typography variant="h6" sx={{ color: "#FF4500", mb: 1 }}>
                   Instructions:
                 </Typography>
-                {selectedExercise.instructions.map((step, idx) => (
-                  <Typography
-                    key={idx}
-                    variant="body2"
-                    sx={{ mb: 0.5, fontSize: "1rem", color: "#FFF" }}
-                  >
-                    - {step}
+                {selectedExercise.instructions.map((inst, i) => (
+                  <Typography key={i} variant="body2" sx={{ color: "#FFF", mb: 0.5 }}>
+                    - {inst}
                   </Typography>
                 ))}
               </Box>
@@ -706,14 +630,27 @@ const PersonalizedTrainingProgramPage: React.FC = () => {
             <Button
               variant="outlined"
               onClick={handleCloseDetails}
-              startIcon={<CloseIcon />}
               sx={{ borderColor: "#FF4500", color: "#FF4500" }}
             >
               Close
             </Button>
           </DialogActions>
         </Dialog>
-      </MainContainer>
+      </BackgroundWrapper>
+
+      {/* Extra CSS animations */}
+      <style>{`
+        @keyframes fadeInDown {
+          0% {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </ThemeProvider>
   );
 };

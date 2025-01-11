@@ -4,22 +4,24 @@ import { Box, Typography, Grid, Card, CardContent, Avatar } from "@mui/material"
 const testimonials = [
   {
     name: "John Doe",
-    role: "Fitness Enthusiast",
-    text: "Ackerra has transformed my fitness journey. The personalized plans and supportive community are unparalleled.",
-    avatar: "/src/assets/img/person1.jpeg"
+    role: "Swimmer",
+    // Exactly 2 sentences, 32 words total
+    text: "Ackerra has revolutionized my aquatic training. The specialized workouts, advanced analytics, and supportive community help me refine my stroke technique, boost endurance, and stay motivated both in and out of the pool.",
+    avatar: "/src/assets/img/person1.jpeg",
   },
   {
     name: "Jane Smith",
-    role: "Athlete",
-    text: "Joining Ackerra was the best decision I made. The trainers are fantastic, and the community keeps me motivated every day.",
-    avatar: "/src/assets/img/person3.avif", // Replace with the actual image path
+    role: "Soccer Player",
+    // Exactly 2 sentences, 32 words total
+    text: "Since joining Ackerra, my agility and strategic mindset have skyrocketed. The platform’s training drills, performance tracking, and live feedback keep me on top of my game for every match and practice session.",
+    avatar: "/src/assets/img/person3.avif",
   },
   {
     name: "Mike Johnson",
-    role: "Personal Trainer",
-    text: "Ackerra isn't just a fitness platform; it's a family. I love being part of this supportive and inspiring community.",
+    role: "Athlete",
+    // Exactly 2 sentences, 32 words total
+    text: "Ackerra has become indispensable to my athletic progress. From customized strength plans and goal tracking to shared motivation with peers, the platform drives improvements and urges me to surpass each personal milestone.",
     avatar: "/src/assets/img/person2.webp",
-    
   },
 ];
 
@@ -51,7 +53,7 @@ const TestimonialSection: React.FC = () => {
         spacing={4}
         sx={{
           display: "flex",
-          justifyContent: "center", // Center the cards horizontally
+          justifyContent: "center",
         }}
       >
         {testimonials.map((testimonial, index) => (
@@ -63,7 +65,7 @@ const TestimonialSection: React.FC = () => {
             md={4}
             sx={{
               display: "flex",
-              justifyContent: "center", // Center each card in its column
+              justifyContent: "center",
             }}
           >
             <Card
@@ -72,7 +74,7 @@ const TestimonialSection: React.FC = () => {
                 color: "#fff",
                 borderRadius: "15px",
                 boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
-                maxWidth: "300px", // Set a consistent max width for each card
+                maxWidth: "300px",
                 textAlign: "center",
               }}
             >

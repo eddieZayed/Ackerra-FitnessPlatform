@@ -57,7 +57,7 @@ interface Supplement {
 
 /** We'll define a styled card that subtly 'pops' on hover. */
 const HoverCard = styled(Card)(({ theme }) => ({
-  backgroundColor: "rgba(28, 28, 28, 0.9)",
+  backgroundColor: "#fff",
   color: "#FFF",
   border: "1px solid rgba(255, 255, 255, 0.2)",
   borderRadius: "12px",
@@ -326,9 +326,10 @@ const SupplementsRecommendationPage: React.FC = () => {
                       <Typography
                         variant="body2"
                         sx={{
-                          color: "rgba(255, 255, 255, 0.8)",
+                          color: "rgba(28, 28, 28, 0.9)",
                           marginBottom: "16px",
                           textAlign: "center",
+                          fontWeight: 'bold'
                         }}
                       >
                         {item.description}
@@ -336,8 +337,9 @@ const SupplementsRecommendationPage: React.FC = () => {
                       <Typography
                         variant="subtitle2"
                         sx={{
-                          color: "rgba(255, 255, 255, 0.6)",
+                          color: "rgba(28, 28, 28, 0.9)",
                           textAlign: "center",
+                          fontWeight: 'bold'
                         }}
                       >
                         Brand: {item.brand}
@@ -345,8 +347,9 @@ const SupplementsRecommendationPage: React.FC = () => {
                       <Typography
                         variant="subtitle2"
                         sx={{
-                          color: "rgba(255, 255, 255, 0.6)",
+                          color: "rgba(28, 28, 28, 0.9)",
                           textAlign: "center",
+                          fontWeight: 'bold'
                         }}
                       >
                         Category: {item.category}

@@ -13,8 +13,6 @@ import {
   Divider,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import FastfoodIcon from "@mui/icons-material/Fastfood";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import {
   Timeline,
@@ -38,6 +36,7 @@ type StageResult = {
   weeklyPlan: { week: string; activity: string }[];
 };
 
+// Updated stage descriptions with the same content
 const stageDescriptions = {
   "Pre-contemplation":
     "You are not currently considering a change in your fitness habits.",
@@ -48,6 +47,7 @@ const stageDescriptions = {
     "You are maintaining your fitness habits and exploring new routines.",
 };
 
+// Questions remain the same
 const questions: Question[] = [
   {
     id: 1,
@@ -96,6 +96,7 @@ const questions: Question[] = [
   },
 ];
 
+// Mapping responses to stage
 const mapToStage = (responses: string[]): StageResult => {
   if (responses[0] === "Not active" && responses[2] === "Not motivated") {
     return {
@@ -200,8 +201,9 @@ const BehaviorChangePage: React.FC = () => {
   const [responses, setResponses] = useState<string[]>([]);
   const [results, setResults] = useState<StageResult | null>(null);
 
-  const navigate = useNavigate(); // For client-side navigation
+  const navigate = useNavigate();
 
+  // Handle user selection
   const handleResponse = (response: string) => {
     const updatedResponses = [...responses];
     updatedResponses[currentQuestion] = response;
@@ -215,46 +217,59 @@ const BehaviorChangePage: React.FC = () => {
     }
   };
 
+  // Go back a question
   const handleBack = () => {
-    if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
   };
 
+  // Reset entire assessment
   const resetAssessment = () => {
     setCurrentQuestion(0);
     setResponses([]);
     setResults(null);
   };
 
-  // Updated Action Button Styles to Dark Theme
+  // Button styles
   const actionButtonStyle = {
-    background: "#1a1a1a", // Dark color
+    background: "#222222",
     color: "#FFF",
     padding: "10px 20px",
     fontSize: "16px",
     fontWeight: "bold",
     borderRadius: "8px",
     textTransform: "none",
+    transition: "all 0.2s",
     "&:hover": {
-      background: "#333333", // Slightly lighter dark on hover
+      background: "#FF4500", // Hover with brand orange
+      transform: "scale(1.03)",
     },
-    minWidth: "180px",
+    minWidth: "170px",
     display: "flex",
     alignItems: "center",
     gap: "8px",
   };
 
-  // Enhanced Advice Styling
   const adviceCardStyle = {
     marginTop: "20px",
     backgroundColor: "#1E1E1E",
     boxShadow: "0px 4px 20px rgba(255, 69, 0, 0.5)",
+    borderRadius: "10px",
   };
 
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundImage: "linear-gradient(to bottom, #0A0A0A, #1B1B1B, #CC3700)", // Darker orange
+        // Enhanced gradient background
+        background: `
+          linear-gradient(135deg, 
+          rgba(10,10,10,1) 0%, 
+          rgba(30,30,30,1) 30%, 
+          rgba(60,60,60,1) 70%, 
+          rgba(255,69,0,1) 100%
+        )`,
         padding: { xs: "20px", sm: "40px" },
         color: "#FFF",
       }}
@@ -275,10 +290,9 @@ const BehaviorChangePage: React.FC = () => {
           Behavior Change Assessment Tool
         </Typography>
 
-        {/* Assessment Questions or Results */}
+        {/* If no results yet, show questions; else show results */}
         {!results ? (
-          <Box>
-            {/* Description */}
+          <>
             <Typography
               variant="body1"
               align="center"
@@ -288,7 +302,8 @@ const BehaviorChangePage: React.FC = () => {
                 fontSize: { xs: "16px", sm: "18px" },
               }}
             >
-              Answer these questions to determine which stage of behavior change you are in.
+              Answer these questions to determine which stage of behavior change
+              you are in.
             </Typography>
 
             {/* Stepper */}
@@ -298,7 +313,7 @@ const BehaviorChangePage: React.FC = () => {
                   <StepLabel
                     StepIconProps={{
                       style: {
-                        color: currentQuestion >= index ? "#FFA500" : "#FFF",
+                        color: currentQuestion >= index ? "#FFA500" : "#AAA",
                       },
                     }}
                   >
@@ -308,7 +323,7 @@ const BehaviorChangePage: React.FC = () => {
                         fontWeight: currentQuestion >= index ? "600" : "400",
                       }}
                     >
-                      {`Q${index + 1}`}
+                      Q{index + 1}
                     </Typography>
                   </StepLabel>
                 </Step>
@@ -316,20 +331,20 @@ const BehaviorChangePage: React.FC = () => {
             </Stepper>
 
             {/* Current Question Card */}
-            <Card
-              sx={adviceCardStyle}
-            >
+            <Card sx={adviceCardStyle}>
               <CardContent>
-                {/* Question */}
                 <Typography
                   variant="h6"
                   align="center"
-                  sx={{ color: "#FFA500", marginBottom: "20px", fontWeight: "600" }}
+                  sx={{
+                    color: "#FFA500",
+                    marginBottom: "20px",
+                    fontWeight: "600",
+                  }}
                 >
                   {questions[currentQuestion].question}
                 </Typography>
 
-                {/* Answer Options */}
                 <Grid container spacing={2} justifyContent="center">
                   {questions[currentQuestion].options.map((option) => (
                     <Grid item xs={12} sm={4} key={option}>
@@ -339,15 +354,21 @@ const BehaviorChangePage: React.FC = () => {
                         onClick={() => handleResponse(option)}
                         aria-label={`Select option ${option}`}
                         sx={{
-                          background: "linear-gradient(to right, #FF4500, #FF8C00)",
+                          background:
+                            "linear-gradient(to right, #FF4500, #FF8C00)",
                           color: "#FFF",
                           "&:hover": {
-                            background: "linear-gradient(to right, #FF5722, #FF4500)",
+                            background:
+                              "linear-gradient(to right, #FF5722, #FF4500)",
                           },
                           borderRadius: "8px",
                           padding: "12px 0",
                           fontSize: "16px",
                           fontWeight: "500",
+                          transition: "all 0.2s",
+                          "&:active": {
+                            transform: "scale(0.98)",
+                          },
                         }}
                       >
                         {option}
@@ -356,7 +377,6 @@ const BehaviorChangePage: React.FC = () => {
                   ))}
                 </Grid>
 
-                {/* Back Button */}
                 <Box
                   sx={{
                     display: "flex",
@@ -367,7 +387,14 @@ const BehaviorChangePage: React.FC = () => {
                   <Button
                     disabled={currentQuestion === 0}
                     variant="outlined"
-                    sx={{ color: "#FFA500", borderColor: "#FFA500" }}
+                    sx={{
+                      color: "#FFA500",
+                      borderColor: "#FFA500",
+                      "&:hover": {
+                        backgroundColor: "rgba(255,165,0,0.15)",
+                        borderColor: "#FFA500",
+                      },
+                    }}
                     onClick={handleBack}
                     aria-label="Go back to previous question"
                   >
@@ -393,14 +420,15 @@ const BehaviorChangePage: React.FC = () => {
                   <span style={{ color: "#FFA500", fontWeight: "600" }}>
                     {stage}:{" "}
                   </span>
-                  <span style={{ color: "#FFF", fontWeight: "500" }}>{description}</span>
+                  <span style={{ color: "#FFF", fontWeight: "500" }}>
+                    {description}
+                  </span>
                 </Typography>
               ))}
             </Box>
-          </Box>
+          </>
         ) : (
-          <Box>
-            {/* User's Stage */}
+          <>
             <Typography
               variant="h5"
               align="center"
@@ -414,7 +442,6 @@ const BehaviorChangePage: React.FC = () => {
               Your Stage: {results.stage}
             </Typography>
 
-            {/* General Advice */}
             <Typography
               variant="body1"
               align="center"
@@ -427,10 +454,8 @@ const BehaviorChangePage: React.FC = () => {
               {results.advice}
             </Typography>
 
-            {/* Divider */}
             <Divider sx={{ marginY: "20px", borderColor: "#FFA500" }} />
 
-            {/* Weekly Plan Timeline */}
             <Typography
               variant="h6"
               align="center"
@@ -458,7 +483,7 @@ const BehaviorChangePage: React.FC = () => {
                         backgroundColor: "#1E1E1E",
                         color: "#FFF",
                         padding: "16px",
-                        boxShadow: "0px 4px 10px rgba(255, 69, 0, 0.3)",
+                        boxShadow: "0px 10px 20px rgba(255, 69, 0, 0.3)",
                         textAlign: "center",
                         borderRadius: "8px",
                       }}
@@ -482,7 +507,6 @@ const BehaviorChangePage: React.FC = () => {
               ))}
             </Timeline>
 
-            {/* Recommended Actions */}
             <Typography
               variant="h6"
               align="center"
@@ -496,7 +520,7 @@ const BehaviorChangePage: React.FC = () => {
               Recommended Actions
             </Typography>
 
-            {/* Recommended Actions Buttons */}
+            {/* Actions: Only 2 buttons now */}
             <Box
               sx={{
                 marginTop: "30px",
@@ -506,7 +530,7 @@ const BehaviorChangePage: React.FC = () => {
                 flexWrap: "wrap",
               }}
             >
-              {/* Answer Again */}
+              {/* 1) Answer Again */}
               <Button
                 variant="contained"
                 sx={actionButtonStyle}
@@ -517,40 +541,18 @@ const BehaviorChangePage: React.FC = () => {
                 Answer Again
               </Button>
 
-              {/* Reserve a Session */}
+              {/* 2) Get Personalized Training Program */}
               <Button
                 variant="contained"
                 sx={actionButtonStyle}
-                onClick={() => navigate("/reserve-coach")}
-                aria-label="Reserve a session with a private coach"
-              >
-                <CalendarTodayIcon />
-                Reserve Session
-              </Button>
-
-              {/* Get Personalized Meal Plan */}
-              <Button
-                variant="contained"
-                sx={actionButtonStyle}
-                onClick={() => navigate("/personalized-meal-plan")}
-                aria-label="Get a personalized meal plan"
-              >
-                <FastfoodIcon />
-                Get Meal Plan
-              </Button>
-
-              {/* Get Personalized Training Program */}
-              <Button
-                variant="contained"
-                sx={actionButtonStyle}
-                onClick={() => navigate("/personalized-training-program")}
+                onClick={() => navigate("/perosnal-training-program")}
                 aria-label="Get a personalized training program"
               >
                 <FitnessCenterIcon />
                 Get Training Program
               </Button>
             </Box>
-          </Box>
+          </>
         )}
       </Container>
     </Box>

@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; 
 import {
   Box,
   Typography,
@@ -8,77 +8,87 @@ import {
   Grid,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
-import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
-import CalculateIcon from "@mui/icons-material/Calculate";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import ChatIcon from "@mui/icons-material/Chat";
-import GroupIcon from "@mui/icons-material/Group";
-import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
-import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 
 const services = [
   {
-    title: "NutriSearch",
+    id: 1,
+    title: "BMI Calculator",
     description:
-      "Input the name of a food, and get nutritional information including macronutrient breakdown and other details.",
-    icon: <RestaurantMenuIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
+      "Accurately calculate your Body Mass Index (BMI) and receive tailored advice to maintain or improve your health and fitness.",
+    image: "/src/assets/img/bmiCalc.jpg",
+    link: "/bmi-calculator",
   },
   {
-    title: "Supplement Recommendations",
+    id: 2,
+    title: "Calorie Calculator",
     description:
-      "Get safe and effective supplement recommendations tailored to your fitness goals.",
-    icon: <FitnessCenterIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
+      "Determine your daily caloric needs with precision. Get personalized macronutrient recommendations to support your fitness goals.",
+    image: "/src/assets/img/caloriCalc.jpg",
+    link: "/calories-calculator",
   },
   {
-    title: "Calorie and Macro Calculator",
+    id: 3,
+    title: "Body Composition Calculator",
     description:
-      "Calculate your daily calorie and macronutrient needs based on your goals and activity levels.",
-    icon: <CalculateIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
+      "Get accurate insights into your fat and muscle composition. Tailor your fitness goals with personalized metrics.",
+    image: "/src/assets/img/bodyComposition.png",
+    link: "/body-composition-calculator",
   },
   {
-    title: "Personalized Meal Planner",
-    description:
-      "Craft a custom nutrition plan based on your desired macronutrient intake and favorite foods.",
-    icon: <MenuBookIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
-  },
-  {
-    title: "Emotional Support Chatbot",
-    description:
-      "An AI-powered chatbot offering motivation, guidance, and emotional support on your journey.",
-    icon: <ChatIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
-  },
-  {
-    title: "Supportive Community",
-    description:
-      "Join a family of fitness enthusiasts who inspire and motivate each other.",
-    icon: <GroupIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
-  },
-  {
-    title: "Progress Photo Gallery",
-    description:
-      "Upload progress photos and share your transformation stories to inspire others.",
-    icon: <CameraAltIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
-  },
-  {
-    title: "Expert Q&A Section",
-    description:
-      "Get personalized answers and advice from fitness experts tailored to your needs.",
-    icon: <SupportAgentIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
-  },
-  {
+    id: 4,
     title: "Calories Burned Calculator",
     description:
-      "Calculate how many calories you burn for specific activities based on your weight and duration.",
-    icon: <SportsSoccerIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
+      "Calculate calories burned during your favorite sports. Enter your weight and time to get accurate results.",
+    image: "/src/assets/img/calorieBurnedCalc.jpeg", 
+    link: "/calories-burned-calculator",
   },
   {
-    title: "Flexibility Guide",
+    id: 5,
+    title: "Supplements Recommendations",
     description:
-      "Access a library of stretching exercises to improve flexibility and mobility.",
-    icon: <AccessibilityNewIcon sx={{ fontSize: 40, color: "#FF5722" }} />,
+      "Discover the best supplements for your fitness needs. Optimize your performance and recovery with expert-selected options.",
+    image: "/src/assets/img/supplements.jpeg", 
+    link: "/supplements-recommendations",
+  },
+  {
+    id: 6,
+    title: "Behavior Change tool",
+    description:
+      "Assess your current stage of change to receive personalized advice and strategies for optimizing your fitness journey.",
+    image: "/src/assets/img/behavioralChange.webp", 
+    link: "/behavior-change-tool",
+  },
+  {
+    id: 7,
+    title: "Ackerra",
+    description:
+      "Hesitant or stressed about starting your fitness journey? Ackerra is here to guide, motivate, and support you every step of the way.",
+    image: "/src/assets/img/chatbot.avif", 
+    link: "/chatbot",
+  },
+  {
+    id: 8,
+    title: "Exercises Library",
+    description:
+      "Explore a vast library of exercises with detailed instructions and images to meet all your fitness needs.",
+    image: "/src/assets/img/exerciseLibrary.jpg", 
+    link: "/exercises",
+  },
+  {
+    id: 9,
+    title: "Personalized Training Program",
+    description:
+      "Get a customized workout plan designed to match your goals, fitness level, and schedule.",
+    image: "/src/assets/img/personalTrainer.png", 
+    link: "/perosnal-training-program",
+  },
+  {
+    id: 10,
+    title: "NutriSearch",
+    description:
+      "Analyze recipes and ingredients to uncover detailed nutritional insights with NutriSearch.",
+    image: "/src/assets/img/nutriSearch.jpg", 
+    link: "/nutri-search",
   },
 ];
 
@@ -87,7 +97,7 @@ const OurServices: React.FC = () => {
     <Box
       id="services"
       sx={{
-        backgroundColor: "#242424", // Slightly lighter black for distinction
+        backgroundColor: "#242424",
         color: "#fff",
         padding: "80px 20px",
         textAlign: "center",
@@ -107,11 +117,11 @@ const OurServices: React.FC = () => {
       </Typography>
 
       <Grid container spacing={4} justifyContent="center">
-        {services.map((service, index) => (
-          <Grid item xs={12} md={6} key={index}>
+        {services.map((service) => (
+          <Grid item xs={12} md={6} key={service.id}>
             <Accordion
               sx={{
-                backgroundColor: "#2e2e2e", // Slightly darker for cards
+                backgroundColor: "#2e2e2e",
                 color: "#fff",
                 borderRadius: "8px",
                 marginBottom: "10px",
@@ -131,7 +141,16 @@ const OurServices: React.FC = () => {
                 <Box
                   sx={{ display: "flex", alignItems: "center", gap: "10px" }}
                 >
-                  {service.icon}
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    style={{
+                      height: "40px",
+                      width: "40px",
+                      borderRadius: "4px",
+                      objectFit: "cover",
+                    }}
+                  />
                   <Typography>{service.title}</Typography>
                 </Box>
               </AccordionSummary>

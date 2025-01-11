@@ -6,7 +6,7 @@ exports.generateTrainingProgram = async (req, res) => {
   try {
     const { goal, daysPerWeek, equipment, height, weight, age, fitnessLevel } = req.body;
 
-    // Validate required fields
+    // Basic validation
     if (
       !goal ||
       !daysPerWeek ||
@@ -18,20 +18,18 @@ exports.generateTrainingProgram = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Please provide goal, daysPerWeek, equipment, height, weight, age, and fitnessLevel.",
+        message: "Missing required fields: goal, daysPerWeek, equipment, height, weight, age, fitnessLevel.",
       });
     }
 
-    // Convert daysPerWeek to integer
     const days = parseInt(daysPerWeek, 10);
-    if (isNaN(days) || days < 1 || days > 7) {
+    if (Number.isNaN(days) || days < 1 || days > 7) {
       return res.status(400).json({
         success: false,
         message: "daysPerWeek must be an integer between 1 and 7.",
       });
     }
 
-    // If 'equipment' is a string, convert to array
     let userEquipment = [];
     if (Array.isArray(equipment)) {
       userEquipment = equipment;

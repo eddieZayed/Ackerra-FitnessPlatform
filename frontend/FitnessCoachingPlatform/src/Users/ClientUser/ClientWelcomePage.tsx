@@ -95,7 +95,7 @@ const ClientWelcomePage: React.FC = () => {
           </Button>
           <Button
             variant="contained"
-            onClick={() => navigate("/shop")}
+            onClick={() => navigate("/store")}
             startIcon={<StoreIcon />}
             sx={{
               backgroundColor: "#FF7043",

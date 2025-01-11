@@ -76,14 +76,6 @@ const services = [
     image: "/src/assets/img/nutriSearch.jpg", 
     link: "/nutri-search",
   },
-  {
-    id: 11,
-    title: "Meal Planner",
-    description: "plan meals",
-    image: "/src/assets/img/", 
-    link: "/meal-planner",
-  },
-  
 ];
 
 const ClientServicesPage: React.FC = () => {
