@@ -1,3 +1,5 @@
+// src/pages/ExercisesPage.tsx
+
 import React, { useState, useEffect, ChangeEvent } from "react";
 import {
   ThemeProvider,
@@ -31,12 +33,8 @@ import CloseIcon from "@mui/icons-material/Close";
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: {
-      main: "#FF4500",
-    },
-    secondary: {
-      main: "#FFA500",
-    },
+    primary: { main: "#FF4500" },
+    secondary: { main: "#FFA500" },
     background: {
       default: "#121212",
       paper: "#1E1E1E",
@@ -127,6 +125,8 @@ const ExercisesPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+
+  // Fallback image if a request fails
   const placeholderImage = "https://via.placeholder.com/300x200.png?text=No+Image";
 
   /** Fetch exercises */
@@ -163,9 +163,7 @@ const ExercisesPage: React.FC = () => {
     try {
       const response = await fetch("http://localhost:5000/api/exercises/search", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ search: searchTerm, page: currentPage, limit: 50 }),
       });
       if (response.status === 429) {
@@ -189,7 +187,7 @@ const ExercisesPage: React.FC = () => {
     }
   };
 
-  /** Effect to load exercises on page or search term change */
+  /** Effect to load exercises on page or searchTerm change */
   useEffect(() => {
     if (searchTerm.trim()) {
       searchExercises();
@@ -200,6 +198,7 @@ const ExercisesPage: React.FC = () => {
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when search term changes
   };
 
   const handlePageChange = (_: any, page: number) => {
@@ -246,7 +245,14 @@ const ExercisesPage: React.FC = () => {
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
-              <IconButton color="primary" sx={{ backgroundColor: "#FF4500", ml: 1 }}>
+              <IconButton
+                color="primary"
+                sx={{ backgroundColor: "#FF4500", ml: 1 }}
+                onClick={() => {
+                  setCurrentPage(1);
+                  searchExercises();
+                }}
+              >
                 <SearchIcon sx={{ color: "#FFF" }} />
               </IconButton>
             </SearchBarContainer>
@@ -272,12 +278,20 @@ const ExercisesPage: React.FC = () => {
                       <HoverCard>
                         <CardMedia
                           component="img"
-                          sx={{ height: 200, objectFit: "cover" }}
                           src={exercise.gifUrl || placeholderImage}
                           alt={exercise.name || "Exercise"}
+                          // LAZY LOADING
+                          loading="lazy"
+                          sx={{
+                            height: 200,
+                            objectFit: "cover",
+                          }}
                           onError={(e: any) => {
-                            e.target.onerror = null; // Prevent infinite loop
-                            e.target.src = placeholderImage; // Set to placeholder
+                            // Only run once to avoid infinite loop
+                            if (e.target.src !== placeholderImage) {
+                              e.target.onerror = null;
+                              e.target.src = placeholderImage;
+                            }
                           }}
                         />
                         <CardContent sx={{ flexGrow: 1 }}>
@@ -338,6 +352,7 @@ const ExercisesPage: React.FC = () => {
           )}
         </Container>
 
+        {/* -------- DETAILS DIALOG -------- */}
         <Dialog
           open={detailsOpen}
           onClose={handleCloseDetails}
@@ -348,7 +363,9 @@ const ExercisesPage: React.FC = () => {
           }}
         >
           <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
-            <Box sx={{ flex: 1 }}>{selectedExercise?.name || "Exercise Details"}</Box>
+            <Box sx={{ flex: 1 }}>
+              {selectedExercise?.name || "Exercise Details"}
+            </Box>
             <IconButton sx={{ color: "#FFF" }} onClick={handleCloseDetails}>
               <CloseIcon />
             </IconButton>
@@ -360,6 +377,7 @@ const ExercisesPage: React.FC = () => {
                   <img
                     src={selectedExercise.gifUrl || placeholderImage}
                     alt={selectedExercise.name || "Exercise"}
+                    loading="lazy"
                     style={{
                       maxWidth: "100%",
                       maxHeight: 400,
@@ -367,8 +385,10 @@ const ExercisesPage: React.FC = () => {
                       objectFit: "cover",
                     }}
                     onError={(e: any) => {
-                      e.target.onerror = null;
-                      e.target.src = placeholderImage;
+                      if (e.target.src !== placeholderImage) {
+                        e.target.onerror = null;
+                        e.target.src = placeholderImage;
+                      }
                     }}
                   />
                 </Box>
@@ -376,31 +396,46 @@ const ExercisesPage: React.FC = () => {
                   variant="subtitle1"
                   sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
                 >
-                  Name: <span style={{ color: "#FFF" }}>{selectedExercise.name || "N/A"}</span>
+                  Name:{" "}
+                  <span style={{ color: "#FFF" }}>
+                    {selectedExercise.name || "N/A"}
+                  </span>
                 </Typography>
                 <Typography
                   variant="subtitle1"
                   sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
                 >
-                  Target Muscles: <span style={{ color: "#FFF" }}>{selectedExercise.targetMuscles.join(", ") || "N/A"}</span>
+                  Target Muscles:{" "}
+                  <span style={{ color: "#FFF" }}>
+                    {selectedExercise.targetMuscles.join(", ") || "N/A"}
+                  </span>
                 </Typography>
                 <Typography
                   variant="subtitle1"
                   sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
                 >
-                  Body Parts: <span style={{ color: "#FFF" }}>{selectedExercise.bodyParts.join(", ") || "N/A"}</span>
+                  Body Parts:{" "}
+                  <span style={{ color: "#FFF" }}>
+                    {selectedExercise.bodyParts.join(", ") || "N/A"}
+                  </span>
                 </Typography>
                 <Typography
                   variant="subtitle1"
                   sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
                 >
-                  Equipment: <span style={{ color: "#FFF" }}>{selectedExercise.equipments.join(", ") || "N/A"}</span>
+                  Equipment:{" "}
+                  <span style={{ color: "#FFF" }}>
+                    {selectedExercise.equipments.join(", ") || "N/A"}
+                  </span>
                 </Typography>
                 <Typography
                   variant="subtitle1"
                   sx={{ mb: 1, color: "#FF4500", fontSize: "1.1rem" }}
                 >
-                  Secondary Muscles: <span style={{ color: "#FFF" }}>{selectedExercise.secondaryMuscles.join(", ") || "N/A"}</span>
+                  Secondary Muscles:{" "}
+                  <span style={{ color: "#FFF" }}>
+                    {selectedExercise.secondaryMuscles.join(", ") || "N/A"}
+                  </span>
                 </Typography>
                 <Typography
                   variant="subtitle1"
